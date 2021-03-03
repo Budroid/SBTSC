@@ -1,6 +1,6 @@
 <template>
   <v-container>
-
+<p style="color: white;"></p>
   </v-container>
 </template>
 
