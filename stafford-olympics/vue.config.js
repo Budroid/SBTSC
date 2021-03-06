@@ -7,8 +7,14 @@ module.exports = {
     themeColor: '#121212',
     msTileColor: '#121212',
     appleMobileWebAppCapable: 'yes',
-    manifestOptions:{
-      backgroundColor: '#121212'
+    mobileWebAppCapable: 'yes',
+    manifestOptions: {
+      background_color: '#121212',
+      related_applications: [{
+        platform: "webapp",
+        // url: "http://localhost:5000"
+        url: "https://stafford-olympics.web.app/manifest.json"
+      }]
     },
     // configure the workbox plugin
     workboxPluginMode: 'InjectManifest',
@@ -18,3 +24,4 @@ module.exports = {
     },
   }
 }
+
