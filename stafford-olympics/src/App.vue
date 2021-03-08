@@ -6,7 +6,7 @@
     <v-main>
       <router-view />
     </v-main>
-       <!-- Update snackbar -->
+    <!-- Update snackbar -->
     <v-snackbar :value="snackbarUpdate" :timeout="-1">
       New version available!
       <template v-slot:action="{ attrs }">
@@ -27,6 +27,8 @@
 export default {
   name: "App",
   data: () => ({
+    // Debug data
+    standalone: false,
     // Update handling
     snackbarUpdate: false,
     registration: null,
@@ -36,6 +38,7 @@ export default {
   }),
 
   created() {
+    console.log("App created");
     // Refresh alle open app tabs wanneer een nieuwe service worker is geinstalleerd.
     if (navigator.serviceWorker) {
       navigator.serviceWorker.addEventListener("controllerchange", () => {
@@ -51,10 +54,19 @@ export default {
       once: true,
     });
 
-    if (!this.isStandalone()){
-       this.$router.push({
-        name: "Installation",
-      });
+    this.standalone = this.isStandalone();
+    if (!this.standalone) {
+      console.log("Geen standalone, push naar installatie page");
+
+      if (this.$route.path != "/installation") {
+        this.$router.replace("/installation");
+      }
+
+      // this.$router.push({
+      //   name: "Installation",
+      // });
+    } else {
+      console.log("Standalone, naar login");
     }
   },
   methods: {

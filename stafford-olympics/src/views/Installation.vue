@@ -1,25 +1,36 @@
 <template>
-  <v-container>
-    <!-- Alleen installatie procedure wanneer de app niet is geinstalleerd -->
-    <div>
-      <!-- Tonen van de progress bar wanneer de app geinstalleerd wordt -->
-      <div v-if="showSpinner && !appInstalled">
-        <p>Stafford Olympics will now be installed on your device.</p>
-        <p>Please wait, this will take about 10 seconds</p>
-        <v-progress-linear
-          height="20"
-          striped
-          indeterminate
-          color="primary"
-        ></v-progress-linear>
-      </div>
-      <!-- Installatie voltooid, geef de gebruiker de mogelijkheid de app meteen te openen  -->
-      <div v-if="appInstalled && !showSpinner">
-        <p>Installation finished successfully</p>
-        <p>You will find the Stafford Olympics app among your other apps.</p>
-        <p>You can close this window, you don't need it anymore.</p>
-      </div>
-    </div>
+  <v-container fill-height>
+    <v-container>
+      <v-row>
+        <v-col align="center"
+          ><v-img width="200px" src="@/assets/logo_groot.png"></v-img>
+        </v-col>
+      </v-row>
+      <v-row justify="space-around">
+        <v-col cols="11" lg="3" align="center">
+          <!-- Tonen van de progress bar wanneer de app geinstalleerd wordt -->
+          <div v-if="showSpinner && !appInstalled">
+            <p>
+              Stafford Olympics will now be installed on your device. Please
+              wait, this will take a few seconds...
+            </p>
+            <v-progress-linear
+              height="20"
+              indeterminate
+              color="primary"
+            ></v-progress-linear>
+          </div>
+          <!-- Installatie voltooid, geef de gebruiker de mogelijkheid de app meteen te openen  -->
+          <div v-if="appInstalled && !showSpinner">
+            <p><b>Installation finished successfully!</b></p>
+            <p>
+              You will find the Stafford Olympics app among your other apps. You
+              can close this window, you don't need it anymore.
+            </p>
+          </div></v-col
+        ></v-row
+      >
+    </v-container>
 
     <!-- Snackbar iOS -->
     <v-snackbar tile :value="snackbarIos" :timeout="-1" light>
@@ -54,9 +65,8 @@
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
         ></v-col>
         <v-col cols="10" style="padding: 8px 8px 8px 0px"
-          ><p style="color: #1e72e2; font-size: 9pt; margin: 0">
-            Please open the link in chrome or check if your browser has an
-            option to install this site as an app on your device.
+          ><p style="color: #1e72e2; font-size: 11pt; margin: 0">
+            To install the app, please open the link in Chrome.
           </p></v-col
         >
       </v-row>
@@ -69,9 +79,9 @@
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
         ></v-col>
         <v-col cols="10" style="padding: 8px 8px 8px 0px"
-          ><p style="color: #1e72e2; font-size: 11pt; margin: 0">
-            To install this page as a desktop application, open the link in
-            Chrome
+          ><p style="color: #1e72e2; font-size: 12pt; margin: 0">
+            To install this page as a desktop application, please open the link
+            in Chrome.
           </p></v-col
         >
       </v-row>
@@ -101,11 +111,13 @@
 <script>
 export default {
   data: () => ({
+    // Debug
+    // mobile: false,
     // Installation handling
     standalone: false,
     appInstalled: false,
     showSpinner: false,
-    beforeInstallPrompt: false,
+    // beforeInstallPrompt: false,
     deferredPrompt: {},
     snackbarIos: false,
     snackbarAndroidDefault: false,
@@ -113,6 +125,7 @@ export default {
     snackbarAutomaticInstall: false,
   }),
   created() {
+    console.log("Installation page created");
     // Data verzamelen om het type instalatie te kunnen bepalen
     // Uit de user agent kunnen we basis info halen zoals mobiel/destop enzo.
     // Standalone geeft aan dat het om een geinstalleerde versie van de app gaat, geen installatie in dat geval.
@@ -126,10 +139,12 @@ export default {
     }, 1500);
 
     window.addEventListener("beforeinstallprompt", (e) => {
-      this.beforeInstallPrompt = true;
-      this.snackbarAutomaticInstall = true;
+      console.log("beforeinstallprompt catched");
       // Laat de default installation banner van Chrome niet meer zien
       e.preventDefault();
+      // this.beforeInstallPrompt = true;
+      this.resetSnacks();
+      this.snackbarAutomaticInstall = true;
       // Stash the event so it can be displayed when the user wants.
       this.deferredPrompt = e;
     });
@@ -137,10 +152,15 @@ export default {
     window.addEventListener("appinstalled", async () => {
       // De naam van dit event is misleidend. Het gaat af wanneer de installatie start, niet wanneer deze eindigt.
       // We kunnen de app pas openen wanneer deze volledig geinstalleerd is.
-      // Hier bestaat geen callback voor dus moeten we onderstaande truc toepassen en elke seconde checken of de app volledig geinstaleerd is.
-      await this.waitForInstallationFinish();
-      // Het automatisch openen van de app mag niet, om beveiligingsredenen.
-      // Daarom middels een link de gebruiker de optie geven om te app te openen. Deze link wordt actief wanneer de app voledig geinstalleerd is.
+      // Hier bestaat geen callback voor dus moeten we onderstaande truc toepassen en elke seconde checken of de app volledig geinstalleerd is.
+      if (mobile) {
+        await this.waitForInstallationFinish();
+        // Desktop springt meteen naar de app, maar is de waarde standalone is dan nog false, omdat er geen reload van het window heeft plaatsgevonden
+      } else {
+        console.log("Naar login");
+        this.$router.replace("/");
+      }
+      console.log("Dit wordt blijkbaar ook nog uitgevoerd");
       this.appInstalled = true;
       // Stop spinner
       this.showSpinner = false;
@@ -149,9 +169,10 @@ export default {
   methods: {
     showInstallationSnackbar(mobile, ios) {
       this.snackbarIos = mobile && ios;
-      this.snackbarAndroidDefault = !ios && mobile && !this.beforeInstallPrompt;
-      this.snackbarDesktop = !mobile && !this.beforeInstallPrompt;
-      this.snackbarAutomaticInstall = this.beforeInstallPrompt;
+      this.snackbarAndroidDefault =
+        !ios && mobile && !this.snackbarAutomaticInstall;
+      this.snackbarDesktop = !mobile && !this.snackbarAutomaticInstall;
+      // this.snackbarAutomaticInstall = this.beforeInstallPrompt;
     },
     resetSnacks() {
       this.snackbarIos = false;
