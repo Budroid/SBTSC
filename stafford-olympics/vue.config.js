@@ -8,8 +8,9 @@ module.exports = {
     msTileColor: '#121212',
     appleMobileWebAppCapable: 'yes',
     mobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: 'black',
     manifestOptions: {
-      background_color: '#121212',
+      background_color: '#000000',
       related_applications: [{
         platform: "webapp",
         // url: "http://localhost:5000"

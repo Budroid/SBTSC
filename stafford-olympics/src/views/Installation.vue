@@ -155,12 +155,12 @@ export default {
       // Hier bestaat geen callback voor dus moeten we onderstaande truc toepassen en elke seconde checken of de app volledig geinstalleerd is.
       if (mobile) {
         await this.waitForInstallationFinish();
-        // Desktop springt meteen naar de app, maar is de waarde standalone is dan nog false, omdat er geen reload van het window heeft plaatsgevonden
       } else {
-        console.log("Naar login");
-        this.$router.replace("/");
+         // Desktop springt meteen naar de app, maar is de waarde standalone is dan nog false, omdat er geen reload van het window heeft plaatsgevonden
+        console.log("We zouden nu eigenlijk naar de login moeten");
+        //  window.location.reload();
+         this.$router.replace("/login");
       }
-      console.log("Dit wordt blijkbaar ook nog uitgevoerd");
       this.appInstalled = true;
       // Stop spinner
       this.showSpinner = false;
