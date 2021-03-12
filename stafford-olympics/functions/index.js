@@ -11,7 +11,7 @@ admin.initializeApp();
 //   response.send("Hello from Firebase!");
 // });
 
-exports.createDefaultAdmin = functions.auth.user().onCreate(user => {
+exports.addDefaultPermissions = functions.auth.user().onCreate(user => {
     // Default admin
     const defaultAdmin = "robertjanbuddenbohmer@gmail.com";
     // custom claim toevoegen voor permissie level
@@ -24,3 +24,24 @@ exports.createDefaultAdmin = functions.auth.user().onCreate(user => {
         console.log(err);
     });
 });
+
+exports.listUsers = functions.https.onCall((data, context) => {
+    // Indien geen admin, dan meteen terug met een foutmelding
+    if (context.auth.token.permissionLevel !== 3) {
+        return { error: "Only admins are allowed to list the users" }
+    }
+    return admin
+        .auth()
+        .listUsers()
+        .then((listUsersResult) => {
+            let users = [];
+            listUsersResult.users.forEach((userRecord) => {
+                users.push(userRecord.toJSON())
+            });
+            return users;
+        })
+        .catch((error) => {
+            console.log('Error listing users:', error);
+            return error;
+        });
+})

@@ -84,6 +84,7 @@ export default {
     firebase.auth().onAuthStateChanged((user) => {
       this.localUser = user;
       if (user) {
+        // Custom claims aan het user object toevoegen om rechten te bepalen
         user.getIdTokenResult().then((idTokenResult) => {
           this.$store.dispatch("commitUser", {
             data: user,
