@@ -2,13 +2,16 @@
   <v-container fluid pa-0 ma-0>
     <v-row justify="center">
       <v-col cols="12" xs="12" sm="12" md="6" lg="5" xl="4">
-        <div v-if="loading" style="width: 100vw; height: 90vh; align-items:center; display: flex;">
+        <div
+          v-if="loading"
+          style="width: 100vw; height: 90vh; align-items: center; display: flex"
+        >
           <v-progress-circular :size="100" color="primary" indeterminate
             >Loading...</v-progress-circular
           >
         </div>
 
-        <v-list v-else dense two-line>
+        <v-list v-else dense two-line :key="componentKey">
           <template v-for="user in users">
             <v-list-item :key="user.uid" @click.native="showDialog(user.uid)">
               <v-list-item-avatar>
@@ -47,10 +50,14 @@
       v-if="modifyUserDialog"
       :value="true"
       @input="modifyUserDialog = false"
-      width="200"
+      width="300"
       scrollable="false"
     >
-      <modify-user :user="selectedUser" @onCancel="modifyUserDialog = false" />
+      <modify-user
+        :user="selectedUser"
+        @onCancel="modifyUserDialog = false"
+        @onChanged="update()"
+      />
     </v-dialog>
     <v-snackbar :value="error" :timeout="4"> {{ error }}} </v-snackbar>
   </v-container>
@@ -65,6 +72,7 @@ export default {
     modifyUserDialog: false,
     error: "",
     loading: true,
+    componentKey: 0,
   }),
   created() {
     console.log("User page created");
@@ -80,19 +88,15 @@ export default {
       });
   },
   methods: {
+    update() {
+      this.modifyUserDialog = false
+      this.componentKey += 1;  
+    },
     showDialog(uid) {
       // Get user from list
       this.selectedUser = this.users.find((x) => x.uid === uid);
       this.modifyUserDialog = true;
     },
-    // getRole(permissionLevel) {
-    //   if (permissionLevel === 3) {
-    //     return "Admin";
-    //   } else if (permissionLevel === 2) {
-    //     return "Teamcaptain";
-    //   }
-    //   return "Member";
-    // },
   },
   components: {
     ModifyUser,
@@ -101,8 +105,8 @@ export default {
 </script>
 <style>
 .v-progress-circular {
-    /* display: block;
+  /* display: block;
     width: 100px; */
-    margin: 0 auto;
+  margin: 0 auto;
 }
 </style>
