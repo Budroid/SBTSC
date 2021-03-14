@@ -81,9 +81,11 @@ export default {
     });
 
     // Als de autenticatie state veranderd is, dan dit gelijk doorvoeren
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       this.localUser = user;
       if (user) {
+        // Force refresh token om aangepaste custom claims te activeren
+        await user.getIdToken(true);
         // Custom claims aan het user object toevoegen om rechten te bepalen
         user.getIdTokenResult().then((idTokenResult) => {
           this.$store.dispatch("commitUser", {

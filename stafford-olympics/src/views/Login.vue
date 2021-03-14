@@ -23,17 +23,24 @@ export default {
   created() {
     console.log("Login created");
   },
-   mounted() {
+  mounted() {
     let ui = firebaseui.auth.AuthUI.getInstance();
     if (!ui) {
       ui = new firebaseui.auth.AuthUI(firebase.auth());
     }
     const uiConfig = {
-      signInFlow: 'popup',
+      signInFlow: "popup",
       signInSuccessUrl: "/",
       signInOptions: [
+        {
+          provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          customParameters: {
+            // Forces account selection even when one account
+            // is available.
+            prompt: "select_account",
+          },
+        },
         firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID,
       ],
     };
@@ -42,8 +49,8 @@ export default {
 };
 </script>
 <style>
-ul.firebaseui-idp-list{
-    margin: 0px !important;
-    padding: 0px !important;
+ul.firebaseui-idp-list {
+  margin: 0px !important;
+  padding: 0px !important;
 }
 </style>
