@@ -33,7 +33,7 @@
     </v-container>
 
     <!-- Snackbar iOS -->
-    <v-snackbar tile :value="snackbarIos" :timeout="-1" light>
+    <v-snackbar tile class="installationBar" :value="snackbarIos" :timeout="-1" light>
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -59,7 +59,7 @@
     </v-snackbar>
 
     <!-- Default Android Snackbar  -->
-    <v-snackbar tile :value="snackbarAndroidDefault" :timeout="-1" light>
+    <v-snackbar tile class="installationBar" :value="snackbarAndroidDefault" :timeout="-1" light>
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -73,7 +73,7 @@
     </v-snackbar>
 
     <!-- Default desktop snackbar -->
-    <v-snackbar tile :value="snackbarDesktop" :timeout="-1" light>
+    <v-snackbar tile class="installationBar" :value="snackbarDesktop" :timeout="-1" light>
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -90,6 +90,7 @@
     <!-- Snackbar automatic install -->
     <v-snackbar
       tile
+      class="installationBar"
       :value="snackbarAutomaticInstall"
       :timeout="-1"
       light
@@ -224,7 +225,7 @@ export default {
 </script>
 <style>
 @media only screen and (max-width: 480px) {
-  .v-snack__wrapper {
+  .installationBar .v-snack__wrapper {
     width: 100vw !important;
   }
 }

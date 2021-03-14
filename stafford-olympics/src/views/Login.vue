@@ -29,7 +29,7 @@ export default {
       ui = new firebaseui.auth.AuthUI(firebase.auth());
     }
     const uiConfig = {
-      signInFlow: "popup",
+      // signInFlow: "popup",
       signInSuccessUrl: "/",
       signInOptions: [
         {

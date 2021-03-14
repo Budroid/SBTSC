@@ -8,7 +8,7 @@
       </v-row>
       <v-row justify="space-around">
         <v-col cols="11" lg="3" align="center">
-          <p>{{ user.data.displayName }}</p>
+          <p>{{ user.data.displayName || 'Anonimous user' }}</p>
           <p>{{ user.data.email }}</p>
            <!-- <p>{{ user.permissionLevel }}</p> -->
           <v-btn to="/users" text color="primary" v-if="user.permissionLevel == 3"

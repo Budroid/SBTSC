@@ -14,13 +14,18 @@
 
         <v-list v-else dense two-line>
           <template v-for="appUser in users">
-            <v-list-item :key="appUser.uid" @click.native="showDialog(appUser.uid)" v-ripple="{ center: true }" :disabled="appUser.email === user.data.email">
+            <v-list-item
+              :key="appUser.uid"
+              @click.native="showDialog(appUser.uid)"
+              v-ripple="{ center: true }"
+              :disabled="appUser.email === user.data.email"
+            >
               <v-list-item-avatar>
                 <v-img :src="appUser.photoURL"></v-img>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title
-                  v-html="appUser.displayName"
+                  v-html="appUser.displayName || 'Anonimous user'"
                 ></v-list-item-title>
                 <v-list-item-subtitle
                   v-html="appUser.email"
@@ -34,7 +39,6 @@
                 >
                 <v-icon
                   v-else-if="appUser.customClaims.permissionLevel == 2"
-                  color="yellow lighten-1"
                   >mdi-account-multiple</v-icon
                 >
               </v-list-item-action>
@@ -60,36 +64,45 @@
         @onError="showError"
       />
     </v-dialog>
+    <!-- Success snackbar -->
     <v-snackbar
-      color="success"
+      color="#151a15"
       centered
+      dark
+      dense
       rounded="pill"
+      class="successBar"
       v-model="userUpdatedSnackbar"
-      timeout="2500"
+      :timeout="timeout"
     >
       <v-alert
+        type="success"
         style="padding: 0px; margin: 0px"
         dense
         v-if="selectedUser"
-        type="success"
-        >User with email {{ selectedUser.email }} is now
-        {{ getRole(selectedUser.customClaims.permissionLevel) }}</v-alert
+        color="transparent"
+        ><center><small>{{ selectedUser.displayName || selectedUser.email }} is now
+        {{ getRole(selectedUser.customClaims.permissionLevel) }}</small></center></v-alert
       >
     </v-snackbar>
+
+    <!-- Error snackbar -->
     <v-snackbar
       dense
-      color="error"
+      color="#360f0f"
       centered
+        class="errorBar"
       rounded="pill"
       v-model="userErrorSnackbar"
-      timeout="2500"
+      :timeout="timeout"
     >
       <v-alert
         style="padding: 0px; margin: 0px"
         dense
+        color="transparent"
         v-if="error"
         type="error"
-        >{{ error }}</v-alert
+        ><center><small>{{ error }}</small></center></v-alert
       >
     </v-snackbar>
   </v-container>
@@ -107,6 +120,7 @@ export default {
     userErrorSnackbar: false,
     error: "",
     loading: true,
+    timeout: 2500,
   }),
   created() {
     const listUsers = firebase.functions().httpsCallable("listUsers");
@@ -149,7 +163,7 @@ export default {
       return "MEMBER";
     },
   },
-   computed: {
+  computed: {
     ...mapGetters(["user"]),
   },
   components: {
@@ -162,5 +176,14 @@ export default {
   /* display: block;
     width: 100px; */
   margin: 0 auto;
+}
+.successBar .v-snack__wrapper {
+  border: 1pt solid green !important;
+  max-width: 90vw;
+}
+
+.errorBar .v-snack__wrapper {
+  border: 1pt solid red !important;
+  max-width: 90vw;
 }
 </style>
