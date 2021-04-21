@@ -25,16 +25,18 @@
   </v-container>
 </template>
 <script>
-import firebase from "firebase";
+import { auth } from '@/firebase';
 import { mapGetters } from "vuex";
+
 export default {
   created() {
-    console.log("Profile created");
+
   },
   methods: {
     signOut(e) {
+      console.log("Logging out...")
       e.stopPropagation();
-      firebase.auth().signOut();
+      auth.signOut();
     },
   },
   computed: {

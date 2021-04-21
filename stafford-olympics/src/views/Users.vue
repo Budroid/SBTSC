@@ -108,7 +108,7 @@
   </v-container>
 </template>
 <script>
-import firebase from "firebase";
+import {functions} from "@/firebase";
 import ModifyUser from "@/components/ModifyUser.vue";
 import { mapGetters } from "vuex";
 export default {
@@ -123,7 +123,7 @@ export default {
     timeout: 2500,
   }),
   created() {
-    const listUsers = firebase.functions().httpsCallable("listUsers");
+    const listUsers = functions.httpsCallable("listUsers");
     listUsers()
       .then((result) => {
         this.users = result.data;

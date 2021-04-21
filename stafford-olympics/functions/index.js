@@ -88,3 +88,7 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
 
 
 })
+
+// exports.addDog = functions.https.onCall(async (data, context) => {
+//     return admin.firestore().collection('dogs').add(data.dog)
+// })

@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import firebase from 'firebase'
-import Login from '../views/Login.vue'
-import Installation from '../views/Installation.vue'
-import Tournaments from '../views/Tournaments.vue'
-import Dogs from '../views/Dogs.vue'
-import Profile from '../views/Profile.vue'
-import Users from '../views/Users.vue'
+import { auth } from '@/firebase';
+import Login from '@/views/Login.vue'
+import Installation from '@/views/Installation.vue'
+import Tournaments from '@/views/Tournaments.vue'
+import Dogs from '@/views/Dogs.vue'
+import Profile from '@/views/Profile.vue'
+import Users from '@/views/Users.vue'
 
 Vue.use(VueRouter)
 
@@ -89,7 +89,7 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.auth)) {
       // Routes naar pages waarvoor authenticatie vereist is
       if (isStandAlone()) {
-        firebase.auth().onAuthStateChanged(user => {
+        auth.onAuthStateChanged(user => {
           if (user) {
             // User is ingelogd, dus heeft toestemming deze page te benaderen. Doorgaan.
             next()
@@ -105,9 +105,9 @@ router.beforeEach((to, from, next) => {
       }
     } else if (to.matched.some(record => record.meta.guest)) {
       // Routes naar pages waarvoor GEEN authenticatie vereist is, maar wel installatie
-      console.log("Bericht vanuit router. verzoek om " + to.name + " met standalone = " + isStandAlone())
+      // console.log("Bericht vanuit router. verzoek om " + to.name + " met standalone = " + isStandAlone())
       if (isStandAlone()) {
-        firebase.auth().onAuthStateChanged(user => {
+        auth.onAuthStateChanged(user => {
           if (user) {
             // User is al ingelogd, dus komt niet langs login maar direct naar beginscherm van de app
             next({ path: "/" })

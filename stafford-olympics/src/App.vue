@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import { auth } from "./firebase";
 export default {
   name: "App",
   data: () => ({
@@ -81,7 +81,7 @@ export default {
     });
 
     // Als de autenticatie state veranderd is, dan dit gelijk doorvoeren
-    firebase.auth().onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async (user) => {
       this.localUser = user;
       if (user) {
         // Force refresh token om aangepaste custom claims te activeren

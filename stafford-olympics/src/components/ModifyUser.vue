@@ -1,5 +1,5 @@
 <template>
-  <v-card flat >
+  <v-card flat>
     <v-card-text style="padding-bottom: 0px; overflow: hidden">
       <v-container fill-height>
         <v-row>
@@ -14,10 +14,7 @@
                 display: flex;
               "
             >
-              <v-radio-group
-                v-if="!loading"
-                v-model="permissionLevel"
-              >
+              <v-radio-group v-if="!loading" v-model="permissionLevel">
                 <v-radio label="Admin" :value="3"></v-radio>
                 <v-radio label="Teamcaptain" :value="2"></v-radio>
                 <v-radio label="Member" :value="1"></v-radio>
@@ -56,15 +53,12 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import { functions } from "@/firebase";
 export default {
   name: "ModifyUser",
   data: () => ({
     permissionLevel: 0,
     initialValue: 0,
-    // success: false,
-    // error: "",
-    // message: "",
     loading: false,
   }),
   created() {
@@ -76,26 +70,18 @@ export default {
       this.$emit("onCancel");
     },
     modify() {
-      const modifyUser = firebase
-        .functions()
-        .httpsCallable("modifyPermissionLevel");
-
+      const modifyUser = functions.httpsCallable("modifyPermissionLevel");
       modifyUser({
         email: this.user.email,
         permissionLevel: this.permissionLevel,
       })
         .then((result) => {
           this.loading = false;
-          // this.success = true;
-          // this.error = "";
-          // this.message = `Role is set to: ${this.getRole(result.data.permissionLevel)}`;
           this.$emit("onChanged", result.data.permissionLevel);
         })
         .catch((err) => {
           this.loading = false;
-          // this.success = false;
           this.$emit("onError", err.message);
-          // this.error = err.message;
         });
     },
   },
