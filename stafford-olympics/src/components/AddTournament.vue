@@ -64,7 +64,7 @@
                       v-model="country"
                       :items="countries"
                       item-text="fullName"
-                      item-value="championship"
+                      item-value="shortCode"
                       label="Country"
                       dense
                       outlined
@@ -235,37 +235,37 @@ export default {
       countries: [
         {
           fullName: "Netherlands",
-          shortCode: "NL",
+          shortCode: "nl",
           championship: "DSA",
         },
         {
           fullName: "Norway",
-          shortCode: "NO",
+          shortCode: "no",
           championship: "NSA",
         },
         {
           fullName: "Italy",
-          shortCode: "IT",
+          shortCode: "it",
           championship: "ISA",
         },
         {
           fullName: "France",
-          shortCode: "FR",
+          shortCode: "fr",
           championship: "FSA",
         },
         {
           fullName: "United States",
-          shortCode: "US",
+          shortCode: "us",
           championship: "USSA",
         },
         {
           fullName: "United Kingdom",
-          shortCode: "UK",
+          shortCode: "gb",
           championship: "UKSA",
         },
         {
           fullName: "Brasil",
-          shortCode: "BR",
+          shortCode: "br",
           championship: "BSA",
         },
       ],
@@ -303,14 +303,14 @@ export default {
           let tournamentName = "";
           let tournamentDate = new Date(this.picker);
           let year = tournamentDate.getFullYear();
-          // console.log(this.tournamentType);
+          let championship = this.countries.find(country => country.shortCode === this.country).championship
           switch (this.tournamentType) {
             case 1:
-              tournamentName += this.country + " " + year;
+              tournamentName += championship + " " + year;
               break;
             case 2:
               tournamentName +=
-                this.country +
+                championship +
                 " " +
                 this.tournamentTypes[this.tournamentType - 1].type +
                 " " +
@@ -329,9 +329,12 @@ export default {
               tournamentName += "Fun tournament";
               break;
           }
+          // console.log(championship)
           let tournament = {
             name: tournamentName,
             startdate: tournamentDate,
+            country: this.country,
+            active: false
           };
           this.tournament = tournament;
           this.e1++;
@@ -343,21 +346,13 @@ export default {
     },
     createTournament() {
       this.creating = true;
-      // Tournament oplslaan in de firestore
+      // Tournament opslaan in de firestore
       tournamentsCollection.add(this.tournament).then(() => {
         this.created = true;
         this.creating = false;
       });
 
-      // // Tijdelijk delay van 2 seconden inbouwen om spinner te testen.
-      // setTimeout(
-      //   function () {
-      //     this.sleep(3000);
-      //     this.created = true;
-      //     this.creating = false;
-      //   }.bind(this),
-      //   200
-      // );
+  
     },
     done() {
       this.$emit("onSuccess");
@@ -374,14 +369,6 @@ export default {
     cancel() {
       this.$emit("onCancel");
     },
-    // sleep(milliseconds) {
-    //   var start = new Date().getTime();
-    //   for (var i = 0; i < 1e7; i++) {
-    //     if (new Date().getTime() - start > milliseconds) {
-    //       break;
-    //     }
-    //   }
-    // },
   },
 };
 </script>

@@ -10,6 +10,21 @@
     <v-main>
       <router-view />
     </v-main>
+
+    <!-- Update snackbar -->
+    <v-snackbar :value="snackbarUpdate" :timeout="-1">
+      New version available!
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          v-bind="attrs"
+          text
+          right
+          color="#00f500"
+          @click.native="refreshApp"
+          >Update</v-btn
+        >
+      </template>
+    </v-snackbar>
     <!-- Navigation -->
     <v-bottom-navigation
       v-if="localUser && !currentRoute.back"
@@ -34,24 +49,11 @@
         <v-icon>mdi-account</v-icon>
       </v-btn>
     </v-bottom-navigation>
-    <!-- Update snackbar -->
-    <v-snackbar :value="snackbarUpdate" :timeout="-1">
-      New version available!
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          v-bind="attrs"
-          text
-          right
-          color="#00f500"
-          @click.native="refreshApp"
-          >Update</v-btn
-        >
-      </template>
-    </v-snackbar>
   </v-app>
 </template>
 
 <script>
+// import { mapState } from 'vuex';
 import { auth } from "./firebase";
 export default {
   name: "App",
@@ -93,8 +95,16 @@ export default {
             permissionLevel: idTokenResult.claims.permissionLevel,
           });
         });
+        // Populate de store met de data uit Firebase
+        this.$store.dispatch("bindDogs");
+        this.$store.dispatch("bindTournaments");
       }
     });
+  },
+  beforeDestroy() {
+    // Stop de data bindings
+    this.$store.dispatch("unbindDogs");
+    this.$store.dispatch("unbindTournaments");
   },
   methods: {
     showRefreshUI(e) {
@@ -103,7 +113,7 @@ export default {
     },
     refreshApp() {
       this.snackbarUpdate = false;
-      // Beveilig tegen missende registration.waiting
+      // Beveiling tegen missende registration.waiting
       if (!this.registration || !this.registration.waiting) {
         return;
       }
@@ -126,6 +136,11 @@ export default {
 }
 .v-item-group.v-bottom-navigation .v-btn--active::before {
   opacity: 0 !important;
+}
+@media only screen and (max-width: 430px) and (max-height: 400px) {
+  .v-item-group.v-bottom-navigation {
+    display: none;
+  }
 }
 </style>
 

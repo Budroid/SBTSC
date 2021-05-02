@@ -1,4 +1,4 @@
-const functions = require("firebase-functions");
+const functions = require("firebase-functions").region('europe-west2');
 const admin = require("firebase-admin");
 admin.initializeApp();
 
@@ -18,8 +18,6 @@ exports.addDefaultPermissions = functions.auth.user().onCreate(user => {
 });
 
 exports.listUsers = functions.https.onCall(async (data, context) => {
-
-    // console.log("Requesting user" + JSON.stringify(context.auth.token.email))
 
     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
         throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
@@ -85,10 +83,20 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
         console.log(err);
         throw new functions.https.HttpsError('cancelled', 'Modifying failed.')
     });
-
-
 })
 
 // exports.addDog = functions.https.onCall(async (data, context) => {
 //     return admin.firestore().collection('dogs').add(data.dog)
 // })
+
+// exports.imageUploaded = functions.storage.object().onFinalize(object => {
+//     console.log("IMAGE GEUPLOAD")
+//     console.log("object.contentType: " + object.contentType)
+//     console.log("object.resizedImage: " + object.resizedImage)
+//     // if (object.resizedImage && object.contentType == 'image/jpeg'){
+//     //     const downloadURL = object.selfLink + "?alt=media&token=" + object.firebaseStorageDownloadTokens
+//     //     console.log("Download URL: " + downloadURL)
+//     // }else{
+//     //     console.log("Geen resized plaatje?")
+//     // }
+// });

@@ -20,16 +20,12 @@ import * as firebaseui from 'firebaseui'
 import "firebaseui/dist/firebaseui.css";
 import { auth, GOOGLE_PROVIDER_ID, FACEBOOK_PROVIDER_ID, EMAIL_PROVIDER_ID } from '@/firebase'
 export default {
-  created() {
-  
-  },
   mounted() {
     let ui = firebaseui.auth.AuthUI.getInstance();
     if (!ui) {
       ui = new firebaseui.auth.AuthUI(auth);
     }
     const uiConfig = {
-      // signInFlow: "popup",
       signInSuccessUrl: "/",
       signInOptions: [
         {

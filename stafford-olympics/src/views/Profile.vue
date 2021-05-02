@@ -34,9 +34,11 @@ export default {
   },
   methods: {
     signOut(e) {
-      console.log("Logging out...")
       e.stopPropagation();
       auth.signOut();
+        // Stop de data bindings
+        this.$store.dispatch("unbindDogs");
+        this.$store.dispatch("unbindTournaments");
     },
   },
   computed: {

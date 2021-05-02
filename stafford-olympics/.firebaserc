@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "stafford-olympics"
+    "default": "sbtsc-stafford-olympics",
+    "production": "sbtsc-stafford-olympics"
+  },
+  "targets": {
+    "sbtsc-stafford-olympics": {
+      "hosting": {
+        "staffordolympics": [
+          "staffordolympics"
+        ]
+      }
+    }
   }
 }

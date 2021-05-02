@@ -14,7 +14,7 @@ module.exports = {
       related_applications: [{
         platform: "webapp",
         // url: "http://localhost:5000"
-        url: "https://stafford-olympics.web.app/manifest.json"
+        url: "https://staffordolympics.firebaseapp.com/manifest.json"
       }]
     },
     // configure the workbox plugin

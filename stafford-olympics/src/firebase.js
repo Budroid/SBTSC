@@ -5,14 +5,23 @@ import 'firebase/functions'
 import 'firebase/storage'
 
 // En nee meneer de assessor, het is niet erg dat dit hier staat. Vraag er maar naar in tijdens het assessment
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBNYrXuL7JNwdsx0ORcrm8S_FP-n1cx-7I",
+//     authDomain: "stafford-olympics.firebaseapp.com",
+//     projectId: "stafford-olympics",
+//     storageBucket: "stafford-olympics.appspot.com",
+//     messagingSenderId: "1082270760609",
+//     appId: "1:1082270760609:web:4bfdd005884304ed2ffae0"
+// };
+
 const firebaseConfig = {
-    apiKey: "AIzaSyBNYrXuL7JNwdsx0ORcrm8S_FP-n1cx-7I",
-    authDomain: "stafford-olympics.firebaseapp.com",
-    projectId: "stafford-olympics",
-    storageBucket: "stafford-olympics.appspot.com",
-    messagingSenderId: "1082270760609",
-    appId: "1:1082270760609:web:4bfdd005884304ed2ffae0"
-};
+    apiKey: "AIzaSyB9pFLbPSkvyMLLqdOFQrbWCQpxQ8CrJrQ",
+    authDomain: "sbtsc-stafford-olympics.firebaseapp.com",
+    projectId: "sbtsc-stafford-olympics",
+    storageBucket: "sbtsc-stafford-olympics.appspot.com",
+    messagingSenderId: "80585125753",
+    appId: "1:80585125753:web:f5412c27883e69cb8809a8"
+  };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -25,7 +34,8 @@ const EMAIL_PROVIDER_ID = firebase.auth.EmailAuthProvider.PROVIDER_ID
 // Utils
 const db = firebase.firestore()
 const auth = firebase.auth()
-const functions = firebase.functions()
+const functions = firebase.app().functions('europe-west2');
+
 const storage = firebase.storage()
 
 // collection references

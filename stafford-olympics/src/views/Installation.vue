@@ -33,7 +33,13 @@
     </v-container>
 
     <!-- Snackbar iOS -->
-    <v-snackbar tile class="installationBar" :value="snackbarIos" :timeout="-1" light>
+    <v-snackbar
+      tile
+      class="installationBar"
+      :value="snackbarIos"
+      :timeout="-1"
+      light
+    >
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -59,7 +65,13 @@
     </v-snackbar>
 
     <!-- Default Android Snackbar  -->
-    <v-snackbar tile class="installationBar" :value="snackbarAndroidDefault" :timeout="-1" light>
+    <v-snackbar
+      tile
+      class="installationBar"
+      :value="snackbarAndroidDefault"
+      :timeout="-1"
+      light
+    >
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -73,7 +85,13 @@
     </v-snackbar>
 
     <!-- Default desktop snackbar -->
-    <v-snackbar tile class="installationBar" :value="snackbarDesktop" :timeout="-1" light>
+    <v-snackbar
+      tile
+      class="installationBar"
+      :value="snackbarDesktop"
+      :timeout="-1"
+      light
+    >
       <v-row>
         <v-col cols="2" style="padding: 8px 0px 8px 4px"
           ><v-img width="33px" src="@/assets/snack_logo.png"></v-img
@@ -112,9 +130,8 @@
 <script>
 export default {
   data: () => ({
-    // Debug
-    // mobile: false,
     // Installation handling
+     mobile: false,
     standalone: false,
     appInstalled: false,
     showSpinner: false,
@@ -131,49 +148,52 @@ export default {
     // Uit de user agent kunnen we basis info halen zoals mobiel/destop enzo.
     // Standalone geeft aan dat het om een geinstalleerde versie van de app gaat, geen installatie in dat geval.
     const uaString = navigator.userAgent.toLowerCase();
-    const mobile = this.isMobile(uaString);
+    this.mobile = this.isMobile(uaString);
     const ios = this.isIos(uaString);
     // Na 2 seconden de snackbar tonen. Dan is bekend of het beforeInstallPrompt event gefired is. Bovendien geeft het in combinatie
     // met de transitie van de snackbar een aandachtstrekkend effect.
     setTimeout(() => {
-      this.showInstallationSnackbar(mobile, ios);
+      this.showInstallationSnackbar(this.mobile, ios);
     }, 1500);
 
-    window.addEventListener("beforeinstallprompt", (e) => {
-      console.log("beforeinstallprompt catched");
+    window.addEventListener("beforeinstallprompt", this.handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", this.handleAppInstalled);
+  },
+  // beforeDestroy() {
+  //   window.removeEventListener("beforeinstallprompt", this.handleBeforeInstallPrompt)
+  //   window.removeEventListener("appinstalled", this.handleAppInstalled)
+  // },
+  methods: {
+    handleBeforeInstallPrompt(e) {
+      // console.log("beforeinstallprompt catched");
       // Laat de default installation banner van Chrome niet meer zien
       e.preventDefault();
-      // this.beforeInstallPrompt = true;
       this.resetSnacks();
       this.snackbarAutomaticInstall = true;
       // Stash the event so it can be displayed when the user wants.
       this.deferredPrompt = e;
-    });
-
-    window.addEventListener("appinstalled", async () => {
+    },
+    async handleAppInstalled() {
       // De naam van dit event is misleidend. Het gaat af wanneer de installatie start, niet wanneer deze eindigt.
       // We kunnen de app pas openen wanneer deze volledig geinstalleerd is.
       // Hier bestaat geen callback voor dus moeten we onderstaande truc toepassen en elke seconde checken of de app volledig geinstalleerd is.
-      if (mobile) {
+      if (this.mobile) {
         await this.waitForInstallationFinish();
       } else {
-         // Desktop springt meteen naar de app, maar is de waarde standalone is dan nog false, omdat er geen reload van het window heeft plaatsgevonden
+        // Desktop springt meteen naar de app, maar is de waarde standalone is dan nog false, omdat er geen reload van het window heeft plaatsgevonden
         console.log("We zouden nu eigenlijk naar de login moeten");
         //  window.location.reload();
-         this.$router.replace("/login");
+        this.$router.replace("/login");
       }
       this.appInstalled = true;
       // Stop spinner
       this.showSpinner = false;
-    });
-  },
-  methods: {
+    },
     showInstallationSnackbar(mobile, ios) {
       this.snackbarIos = mobile && ios;
       this.snackbarAndroidDefault =
         !ios && mobile && !this.snackbarAutomaticInstall;
       this.snackbarDesktop = !mobile && !this.snackbarAutomaticInstall;
-      // this.snackbarAutomaticInstall = this.beforeInstallPrompt;
     },
     resetSnacks() {
       this.snackbarIos = false;

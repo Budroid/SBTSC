@@ -4,6 +4,7 @@ import { auth } from '@/firebase';
 import Login from '@/views/Login.vue'
 import Installation from '@/views/Installation.vue'
 import Tournaments from '@/views/Tournaments.vue'
+import Tournament from '@/views/Tournament.vue'
 import Dogs from '@/views/Dogs.vue'
 import Profile from '@/views/Profile.vue'
 import Users from '@/views/Users.vue'
@@ -17,6 +18,18 @@ const routes = [
     component: Tournaments,
     meta: {
       auth: true,
+    }
+  },
+  {
+    path: '/tournament/:id',
+    name: 'Tournament',
+    component: Tournament,
+    meta: {
+      auth: true,
+      page: {
+        title: "Tournament room",
+        back: true
+      }
     }
   },
   {
@@ -100,12 +113,11 @@ router.beforeEach((to, from, next) => {
         })
       } else {
         // Local development:
-        // next()
-        next({ path: "/installation" })
+        next()
+        // next({ path: "/installation" })
       }
     } else if (to.matched.some(record => record.meta.guest)) {
       // Routes naar pages waarvoor GEEN authenticatie vereist is, maar wel installatie
-      // console.log("Bericht vanuit router. verzoek om " + to.name + " met standalone = " + isStandAlone())
       if (isStandAlone()) {
         auth.onAuthStateChanged(user => {
           if (user) {
@@ -118,7 +130,7 @@ router.beforeEach((to, from, next) => {
         })
       }
       else {
-        // Dit kan in het geval van een desktop applicatie
+        // Dit kan, in het geval van een desktop applicatie
         next()
       }
     } else {

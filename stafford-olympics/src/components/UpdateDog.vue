@@ -6,7 +6,7 @@
           <v-row class="text-center" justify="center" align="center">
             <v-col cols="12" xs="12" sm="12" md="6">
               <v-progress-circular :size="100" color="primary" indeterminate
-                >Creating</v-progress-circular
+                >Updating</v-progress-circular
               >
             </v-col>
           </v-row>
@@ -17,16 +17,17 @@
           <v-row class="text-center" justify="center" align="center">
             <v-col cols="12" xs="12" sm="12" md="6">
               <h2>{{ dog.name }}</h2>
-              <p>has been succesfully added</p>
+              <p>has been succesfully updated</p>
             </v-col>
           </v-row>
         </v-container>
       </v-card-text>
+
       <v-card-text v-else>
         <v-form
           ref="form"
           v-model="valid"
-          @keyup.native.enter="valid && createDog()"
+          @keyup.native.enter="valid && updateDog()"
         >
           <center>
             <image-input v-model="selectedImage">
@@ -39,8 +40,16 @@
                 >
                   <span>Click to add image</span>
                 </v-avatar>
-                <v-avatar size="120px" v-ripple v-else class="ma-1">
+                <v-avatar
+                  size="120px"
+                  v-ripple
+                  v-else-if="selectedImage"
+                  class="ma-1"
+                >
                   <v-img :src="selectedImage.imageURL" />
+                </v-avatar>
+                <v-avatar size="120px" v-ripple v-else class="ma-1">
+                  <v-img :src="dog.image" />
                 </v-avatar>
               </div>
             </image-input>
@@ -73,8 +82,14 @@
             type="text"
             required
           ></v-text-field>
-        </v-form>
 
+          <v-checkbox
+            v-model="dog.retired"
+            label="Retired"
+            color="primary"
+            hide-details
+          ></v-checkbox>
+        </v-form>
         <v-alert
           style="border: 1pt solid red !important"
           dense
@@ -90,11 +105,10 @@
       <v-card-actions v-if="!creating && created" class="justify-center">
         <v-btn @click="done()" color="primary"> DONE </v-btn>
       </v-card-actions>
-
       <v-card-actions v-if="!creating && !created">
         <v-btn text @click="done()"> Cancel </v-btn>
-        <v-btn color="primary" :disabled="!valid" @click="valid && createDog()">
-          Add
+        <v-btn color="primary" :disabled="!valid" @click="valid && updateDog()">
+          UPDATE
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -102,18 +116,18 @@
 </template>
 
 <script>
-import { dogsCollection} from "@/firebase";
-// import { dogsCollection, storage} from "@/firebase";
+// import { storage, dogsCollection } from "@/firebase";
+import { dogsCollection } from "@/firebase";
 import { nameRules, heightRules, chipnumberRules } from "@/validationrules";
 import { capitalize } from "@/stringutil";
 import ImageInput from "@/components/ImageInput.vue";
 import { mapGetters, mapState } from "vuex";
 
 export default {
-  name: "AddDog",
+  name: "UpdateDog",
   data() {
     return {
-      valid: true,
+      valid: false,
       nameRules: nameRules,
       heightRules: heightRules,
       chipnumberRules: chipnumberRules,
@@ -124,15 +138,23 @@ export default {
       err: "",
     };
   },
+  created() {
+    this.dog = { ...this.selectedDog };
+    this.dogId = this.selectedDog.id;
+  },
   components: { ImageInput: ImageInput },
   methods: {
     getClass(height) {
       let inInches = height * 0.393700787;
-      if (inInches < 15) return 14;
-      if (inInches >= 18) return 18;
+      if (inInches < 15) {
+        return 14;
+      }
+      if (inInches >= 18) {
+        return 18;
+      }
       return Math.floor(inInches);
     },
-    async createDog() {
+    async updateDog() {
       if (
         this.dogs.some(
           (x) => x.id !== this.dogId && x.chipnumber === this.dog.chipnumber
@@ -143,7 +165,6 @@ export default {
         return;
       }
       this.err = "";
-
       this.creating = true;
       if (this.selectedImage) {
         // // Als er een image is geselecteerd dan deze eerst uploaden, zodat we een download URL hebben om toe toe voegen aan het dog object
@@ -158,34 +179,37 @@ export default {
         // // Set image url on dog object
         // this.dog.image = await response.ref.getDownloadURL();
       }
-      // Naam van de hond capitalizen voor de mensen die niet goed hebben opgelet op school. Fucking lelijk, namen met een kleine letter. :P
+      // Klasse toevoegen aan de hond
+      this.dog.class = this.getClass(this.dog.height);
+      // Naam van de hond capitalizen voor de mensen die niet goed hebben opgelet op school
       this.dog.name = capitalize(this.dog.name);
       this.dog.creator = this.user.data.uid;
-      // Inch klasse toevoegen aan de hond
-      this.dog.class = this.getClass(this.dog.height);
-      // Hond is bij default niet retired. Indien true, wordt deze hond niet weergegeven in het scherm waar de teams worden samengesteld.
-      this.dog.retired = false;
-      // Hond is bij default beschikbaar voor een team, deze waarde wordt alleen op false gezet wanneer een hond in een tourament actief is er wordt na het tournament weer gereset.
-      this.dog.availableForTeam = true;
-      // Hond oplslaan in de firestore
-      dogsCollection.add(this.dog).then(() => {
-        this.created = true;
-        this.creating = false;
-      });
+      // Hond updaten
+      
+      //TODO Eerst image resize fixen en functions aanpassen
+
+      dogsCollection
+        .doc(this.dogId)
+        .update(this.dog)
+        .then(() => {
+          this.created = true;
+          this.creating = false;
+        });
     },
     done() {
       this.creating = false;
       this.created = false;
       this.dog = null;
       this.selectedImage = null;
-      // this.$refs.form.reset();
-      // this.$refs.form.resetValidation();
       this.$emit("onClose");
     },
   },
   computed: {
     ...mapGetters(["user"]),
     ...mapState(["dogs"]),
+  },
+  props: {
+    selectedDog: Object,
   },
 };
 </script>
