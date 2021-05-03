@@ -77,9 +77,19 @@ export default {
     // Hier straks de listener opzetten voor de results van dit toernooi
 
     // Moeten we checken of het toernooi actief is? Zo niet dan is eenmalig ophalen voldoende
+
+
+
+    // Dynamische listener voor de teams van het toernooi opzetten
+    this.$store.dispatch("bindTeamsByTournament", this.$route.params.id);
+
+
   },
   beforeDestroy() {
     // Listener voor de results van dit toernooi weer stoppen
+
+    // Listener voor de teams weer stopzetten
+    this.$store.dispatch("unbindTeams");
   },
   computed: {
     ...mapGetters(["user", "tournaments"]),

@@ -1,5 +1,8 @@
 const nameRules=  [(v) => !!v || "Name is required"]
-const teamNameRules=  [(v) => !!v || "What's the name for this team?", (v) => v.length < 3 || "Teamname must be at least 3 characters"]
+const teamNameRules=  [
+  (v) => !!v || "What's the name for this team?",
+  (v) => v.length > 2 || "Teamname must be at least 3 characters",
+]
 
 
 const heightRules =  [

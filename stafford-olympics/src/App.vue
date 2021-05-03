@@ -88,7 +88,7 @@ export default {
       if (user) {
         // Force refresh token om aangepaste custom claims te activeren
         await user.getIdToken(true);
-        // Custom claims aan het user object toevoegen om rechten te bepalen
+        // Custom claims aan het user object toevoegen om rechten te bepalen. Store updaten
         user.getIdTokenResult().then((idTokenResult) => {
           this.$store.dispatch("commitUser", {
             data: user,

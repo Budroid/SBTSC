@@ -1,30 +1,27 @@
 <template>
-  <v-container >
-    <!-- <v-card flat class="mb-0" color="background lighten-2">
-      <v-card-text v-if="creating">
-        <v-container fill-height>
-          <v-row class="text-center" justify="center" align="center">
-            <v-col cols="12" xs="12" sm="12" md="6">
-              <v-progress-circular :size="100" color="primary" indeterminate
-                >Creating</v-progress-circular
-              >
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
-      <v-card-text v-else-if="created">
-        <v-container fill-height>
-          <v-row class="text-center" justify="center" align="center">
-            <v-col cols="12" xs="12" sm="12" md="6">
-              <h2>{{ dog.name }}</h2>
-              <p>has been succesfully added</p>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text> -->
-
+  <v-container>
     <v-card flat class="mb-0" color="background lighten-1">
-      <v-container>
+      <v-container v-if="creating" fill-height>
+        <v-row class="text-center" justify="center" align="center">
+          <v-col cols="12" xs="12" sm="12" md="6">
+            <v-progress-circular :size="100" color="primary" indeterminate
+              >Proccessing</v-progress-circular
+            >
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <v-container v-else-if="created" fill-height>
+        <v-row class="text-center" justify="center" align="center">
+          <v-col cols="12" xs="12" sm="12" md="6">
+            <h2>{{ teamName }}</h2>
+            <p>has been succesfully subscribed</p>
+            <v-btn @click="$emit('onClose')" color="primary"> DONE </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <v-container v-else>
         <v-form v-model="valid" @keyup.native.enter="valid && createTeam()">
           <v-text-field
             v-model.trim="teamName"
@@ -35,7 +32,6 @@
             hide-details="auto"
             maxlength="30"
           ></v-text-field>
-          
         </v-form>
         <small>Select dogs for your team:</small>
 
@@ -86,11 +82,24 @@
             </v-list>
           </v-col>
         </v-row>
+        <v-row v-if="err">
+          <v-col>
+            <v-alert
+              style="border: 1pt solid red !important"
+              dense
+              color="#360f0f"
+              rounded="pill"
+              type="error"
+            >
+              <small>{{ err }}</small>
+            </v-alert>
+          </v-col>
+        </v-row>
         <v-row no-gutters>
           <v-col
             ><v-btn class="mr-2" small @click="$emit('onClose')">Cancel</v-btn
             ><v-btn
-            @click="createTeam()"
+              @click="createTeam()"
               small
               color="primary"
               :disabled="!valid || !selectedDogs.length"
@@ -100,40 +109,30 @@
         </v-row>
       </v-container>
     </v-card>
-
-    <!-- <v-alert
-          style="border: 1pt solid red !important"
-          dense
-          color="#360f0f"
-          rounded="pill"
-          v-if="err"
-          type="error"
-        >
-          <small>{{ err }}</small>
-        </v-alert> -->
   </v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-// import { teamNameRules } from "@/validationrules";
+import {  mapGetters } from "vuex";
+// import { mapGetters, mapState } from "vuex";
+import { teamNameRules } from "@/validationrules";
+import { functions } from "@/firebase";
 export default {
   name: "SubscribeTeam",
   data: () => ({
     teamName: "",
     availableDogs: [],
     selectedDogs: [],
-    teamNameRules: [
-      (v) => !!v || "What's the name for this team?",
-      (v) => v.length > 2 || "Teamname must be at least 3 characters",
-    ],
+    teamNameRules: teamNameRules,
     // teamNameRules: [v => !!v || 'What\'s the name for this team?'],
     valid: false,
+    creating: false,
+    created: false,
+    err: "",
   }),
 
   created() {
-    // Lijst met beschikbare honden samenstellen
-    this.availableDogs = this.dogs.filter(
+   this.availableDogs = this.dogs.filter(
       (dog) => !dog.retired && dog.availableForTeam
     );
   },
@@ -158,11 +157,25 @@ export default {
       this.selectedDogs.splice(index, 1);
     },
     createTeam() {
+      this.creating = true;
       let team = {
         name: this.teamName,
-        dogs: this.selectedDogs.map(dog => dog.id)
-      }
-      console.log(team)
+        dogs: this.selectedDogs.map((dog) => dog.id),
+        tournament: this.$route.params.id,
+      };
+      const subscribeTeam = functions.httpsCallable("subscribeTeam");
+      subscribeTeam({
+        team: team,
+      })
+        .then(() => {
+          this.creating = false;
+          this.created = true;
+        })
+        .catch((err) => {
+          this.err = err;
+          this.creating = false;
+          this.created = false;
+        });
     },
   },
   computed: {
@@ -174,5 +187,4 @@ export default {
 .v-list--dense .v-list-item {
   min-height: 0px !important;
 }
-
 </style>

@@ -35,12 +35,12 @@ const EMAIL_PROVIDER_ID = firebase.auth.EmailAuthProvider.PROVIDER_ID
 const db = firebase.firestore()
 const auth = firebase.auth()
 const functions = firebase.app().functions('europe-west2');
-
 const storage = firebase.storage()
 
-// collection references
+// Collection references
 const tournamentsCollection = db.collection('tournaments')
 const dogsCollection = db.collection('dogs')
+const teamsCollection = db.collection('teams')
 
 export {
     db,
@@ -49,6 +49,7 @@ export {
     storage,
     tournamentsCollection,
     dogsCollection,
+    teamsCollection,
     GOOGLE_PROVIDER_ID,
     FACEBOOK_PROVIDER_ID,
     EMAIL_PROVIDER_ID

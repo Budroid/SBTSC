@@ -5,10 +5,11 @@
       <template v-if="myTeams.length">
         <v-list-item :key="team.id" v-for="team in myTeams">
           <v-list-item-content>
-            <v-list-item-title>Team X</v-list-item-title>
+            <v-list-item-title>{{team.name}}</v-list-item-title>
           </v-list-item-content>
-          <v-divider v-bind:key="team.id" />
+          
         </v-list-item>
+        
       </template>
       <template v-else
         ><v-container
@@ -49,7 +50,7 @@
     >
 
     <!-- Add team dialog -->
-    <v-dialog v-model="addTeamDialog" style="height: 100vh;">
+    <v-dialog v-model="addTeamDialog" style="height: 100vh">
       <subscribe-team v-if="addTeamDialog" @onClose="close()" />
     </v-dialog>
   </v-container>
@@ -57,10 +58,9 @@
 
 <script>
 import SubscribeTeam from "@/components/SubscribeTeam.vue";
+import { mapGetters } from "vuex";
 export default {
   data: () => ({
-    myTeams: [],
-    otherTeams: [],
     addTeamDialog: false,
   }),
   methods: {
@@ -73,6 +73,15 @@ export default {
   },
   components: {
     SubscribeTeam,
+  },
+  computed: {
+    ...mapGetters(["teams", "user"]),
+    myTeams(){
+        return this.teams.filter((team) => team.creator === this.user.data.uid);
+    },
+    otherTeams(){
+        return this.teams.filter((team) => team.creator !== this.user.data.uid);
+    }
   },
 };
 </script>
