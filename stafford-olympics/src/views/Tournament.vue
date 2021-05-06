@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="currentTournament && currentTournament.name">
     <v-row style="" no-gutters justify="center">
       <v-col
         style="text-align: center; margin-top: 10px"
@@ -18,7 +18,7 @@
     </v-row>
     <v-row>
       <v-col sm="12" xs="12" md="6" lg="6" xl="4">
-        <v-tabs v-model="tab" background-color="transparent" grow>
+        <v-tabs v-model="tab" background-color="transparent" grow >
           <v-tab>Results</v-tab>
           <v-tab>Teams</v-tab>
         </v-tabs>
@@ -42,8 +42,10 @@
               <v-tab><div class="roundTab">18"</div></v-tab>
               <v-tab><div class="roundTab">Tms</div></v-tab>
             </v-tabs>
-            <v-tabs-items v-model="inchClass">
-              <v-tab-item> Overall results </v-tab-item>
+            <v-tabs-items v-model="inchClass" >
+              <v-tab-item>
+              <p>Once the tournament has started, the dog's scores can be submitted here. It is also no longer possible to register a team from then. So don't forget to do this in time.  </p> 
+               </v-tab-item>
               <v-tab-item> Results 14" </v-tab-item>
               <v-tab-item> Results 15" </v-tab-item>
               <v-tab-item> Results 16" </v-tab-item>
@@ -51,8 +53,8 @@
               <v-tab-item> Results 18" </v-tab-item>
             </v-tabs-items>
           </v-tab-item>
-          <v-tab-item>
-             <teams :currentTournament='currentTournament' />
+          <v-tab-item style="height: 75vh;">
+            <teams />
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -65,36 +67,30 @@ import { mapGetters } from "vuex";
 import Teams from '@/components/Teams.vue'
 export default {
   data: () => ({
-    currentTournament: {},
+    // currentTournament: {},
     inchClass: null,
     tab: null,
   }),
   created() {
-    // Scherm voorzien van data
-    this.currentTournament = this.tournaments.find(
-      (tournament) => tournament.id === this.$route.params.id
-    );
+    const currentTournament = this.tournaments.find(tournament => tournament.id === this.$route.params.id)
+    // Geselecteerde tournament ophalen en in de store zetten, zodat de data beschikbaar is
+    this.$store.dispatch("commitCurrentTournament", currentTournament).then(()=>{
+      // Als dat klaar is, dan de bijbehoorende teams "lazy" laden.
+      this.$store.dispatch("bindTeamsForTournament", currentTournament.id);
+    });
+    
     // Hier straks de listener opzetten voor de results van dit toernooi
 
     // Moeten we checken of het toernooi actief is? Zo niet dan is eenmalig ophalen voldoende
-
-
-
-    // Dynamische listener voor de teams van het toernooi opzetten
-    this.$store.dispatch("bindTeamsByTournament", this.$route.params.id);
-
-
   },
   beforeDestroy() {
-    // Listener voor de results van dit toernooi weer stoppen
-
-    // Listener voor de teams weer stopzetten
-    this.$store.dispatch("unbindTeams");
+    // Listener voor de data van dit toernooi weer stoppen
+    this.$store.dispatch("unbindTeamsForTournament");
   },
   computed: {
-    ...mapGetters(["user", "tournaments"]),
+    ...mapGetters(["user", "tournaments", "currentTournament", "teamsForTournament"]),
   },
-  components:{Teams}
+  components: { Teams },
 };
 </script>
 

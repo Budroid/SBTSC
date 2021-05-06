@@ -33,8 +33,8 @@
               </v-row>
             </div>
           </v-expand-transition>
-          <template v-for="dog in filteredDogs">
-            <v-list-item :key="dog.id">
+          <template v-for="dog, index in filteredDogs">
+            <v-list-item :key="`${index}-${dog.id}`">
               <v-list-item-avatar>
                 <v-avatar>
                   <v-img src="@/assets/default.jpg"></v-img>
@@ -76,14 +76,12 @@
       fixed
       right
       bottom
-      v-bind="attrs"
-      v-on="on"
       @click="toggleSearch()"
       ><v-icon dark color="white">mdi-magnify</v-icon>
     </v-btn>
     <!-- Create dog dialog -->
-    <v-dialog v-model="dogDialog" v-if="user.permissionLevel >= 2">
-      <template v-slot:activator="{ on, attrs }">
+    <v-dialog v-model="dogDialog" v-if="user && user.permissionLevel >= 2">
+      <template v-slot:activator="{  }">
         <v-btn
           style="z-index: 100; bottom: 72px"
           fab
@@ -92,8 +90,7 @@
           fixed
           right
           bottom
-          v-bind="attrs"
-          v-on="on"
+   
         >
           <v-icon dark color="white">mdi-plus</v-icon>
         </v-btn>
@@ -150,7 +147,7 @@ export default {
             .startsWith(this.searchtext.toLowerCase());
         });
       } else {
-        return this.dogs;
+        return {...this.dogs};
       }
     },
   },

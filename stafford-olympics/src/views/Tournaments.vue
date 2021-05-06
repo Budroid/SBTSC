@@ -8,19 +8,34 @@
         <v-list>
           <v-subheader style="height: 20px">Tournaments</v-subheader>
           <template v-for="tournament in tournaments">
-            <v-list-item :key="tournament.id"
-            :to="'/tournament/' + tournament.id">
-             <v-list-item-avatar tile>
-            <img
-              v-bind:src="require('@/assets/' + tournament.country + '.png')"
-            />
-          </v-list-item-avatar>
+            <v-list-item
+              :key="tournament.id"
+              :to="'/tournament/' + tournament.id"
+            >
+              <v-list-item-avatar tile>
+                <img
+                  v-bind:src="
+                    require('@/assets/' + tournament.country + '.png')
+                  "
+                />
+              </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title v-html="tournament.name"></v-list-item-title>
+                <v-list-item-title>{{ tournament.name }}</v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ tournament.startdate.toDate().toLocaleDateString() }}
+                  <small>{{
+                    tournament.startdate.toDate().toLocaleDateString()
+                  }}</small>
                 </v-list-item-subtitle>
+                <small
+                  ><em>{{ tournament.state }}</em></small
+                >
               </v-list-item-content>
+
+              <v-list-item-action v-if="user && user.permissionLevel == 3">
+                <v-btn text @click="startTournament()" color="primary"
+                  >Start</v-btn
+                >
+              </v-list-item-action>
             </v-list-item>
             <v-divider v-bind:key="tournament.name" />
           </template>
@@ -28,7 +43,7 @@
       </v-col>
     </v-row>
     <!-- Create tournament dialog -->
-    <v-dialog v-model="createDialog" v-if="user.permissionLevel == 3">
+    <v-dialog v-model="createDialog" v-if="user && user.permissionLevel == 3">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           style="z-index: 100; bottom: 72px"
@@ -61,7 +76,11 @@ export default {
     createDialog: false,
     successDialog: false,
   }),
-  methods: {},
+  methods: {
+    startTournament() {
+      console.log("woefha");
+    },
+  },
   computed: {
     ...mapGetters(["user", "tournaments"]),
   },

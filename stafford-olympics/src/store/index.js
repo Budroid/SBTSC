@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { vuexfireMutations, firestoreAction } from 'vuexfire'
-import { tournamentsCollection, dogsCollection, teamsCollection } from "@/firebase";
+import { tournamentsCollection, dogsCollection } from "@/firebase";
 
 Vue.use(Vuex)
 
@@ -10,7 +10,8 @@ const store = new Vuex.Store({
     user: null,
     tournaments: [],
     dogs: [],
-    teams:[]
+    currentTournament:{},
+    teamsForTournament: []
   },
   getters: {
     user(state) {
@@ -22,16 +23,20 @@ const store = new Vuex.Store({
     },
     dogs(state) {
       return state.dogs
-      // return state.dogs.sort((a, b) => a.name.localeCompare(b.name))
     },
-    teams(state) {
-      return state.teams
-      // return state.dogs.sort((a, b) => a.name.localeCompare(b.name))
+    currentTournament(state) {
+      return state.currentTournament
+    },
+    teamsForTournament(state) {
+      return state.teamsForTournament
     }
   },
   mutations: {
     setUser(state, user) {
       state.user = user;
+    },
+    setCurrentTournament(state, currentTournament) {
+      state.currentTournament = currentTournament;
     },
     ...vuexfireMutations,
   },
@@ -39,8 +44,11 @@ const store = new Vuex.Store({
     commitUser({ commit }, user) {
       commit("setUser", user);
     },
-    bindTeamsByTournament: firestoreAction(({bindFirestoreRef}, tournamentId) =>{
-      return bindFirestoreRef('teams', teamsCollection.where('tournament', '==', tournamentId))
+    commitCurrentTournament({ commit }, currentTournament) {
+      commit("setCurrentTournament", currentTournament);
+    },
+    bindTeamsForTournament: firestoreAction(({bindFirestoreRef}, tournamentId) =>{
+      return bindFirestoreRef('teamsForTournament', tournamentsCollection.doc(tournamentId).collection("teams"))
     }),
     bindTournaments: firestoreAction(({ bindFirestoreRef }) => {
       return bindFirestoreRef('tournaments', tournamentsCollection)
@@ -48,8 +56,8 @@ const store = new Vuex.Store({
     bindDogs: firestoreAction(({ bindFirestoreRef }) => {
       return bindFirestoreRef('dogs', dogsCollection.orderBy('name'))
     }),
-    unbindTeams: firestoreAction(({ unbindFirestoreRef }) => {
-      unbindFirestoreRef('teams')
+    unbindTeamsForTournament: firestoreAction(({ unbindFirestoreRef }) => {
+      unbindFirestoreRef('teamsForTournament')
     }),
     unbindTournaments: firestoreAction(({ unbindFirestoreRef }) => {
       unbindFirestoreRef('tournaments')

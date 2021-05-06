@@ -334,7 +334,7 @@ export default {
             name: tournamentName,
             startdate: tournamentDate,
             country: this.country,
-            active: false
+            state: "Open for subscription",
           };
           this.tournament = tournament;
           this.e1++;

@@ -85,47 +85,72 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
     });
 })
 
-exports.subscribeTeam = functions.https.onCall(async (data, context) => {
-    // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
-    // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
-    const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-        throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
-    })
+// exports.updateDog = functions.https.onCall(async (data, context) => {
+//     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
+//     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
+//     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
+//         throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+//     })
 
-    // Checken of de user tenminste teamcaptain is.
-    if (requestingUser.customClaims.permissionLevel < 2) {
-        throw new functions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to subscribe a team')
-    }
+//     // Checken of de user de teamcaptain van het team is
+//     if (requestingUser.uid === data.team.creator) {
+//         throw new functions.https.HttpsError('permission-denied', 'Only the teamcaptain of this team can perform an update')
+//     }
 
-    // // Checken of een van de honden niet al aan een ander team is toegevoegd
-    // for (dog in data.team.dogs){
-    //     // Komt dog.id voor in 
+//     // De nieuwe dogs zijn nu niet beschikbaar meer om te selecteren voor een ander team
+//     data.team.newDogs.forEach(async dog => {
+//         await admin.firestore().collection("dogs").doc(dog).update({
+//             availableForTeam: false
+//         });
+//     })
+//     // De verwijderde dogs zijn nu weer beschikbaar meer om te selecteren
+//     data.team.removedDogs.forEach(async dog => {
+//         await admin.firestore().collection("dogs").doc(dog).update({
+//             availableForTeam: true
+//         });
+//     })
 
-    // }
+//     // Team document updaten
+//     let team = data.team
+//     return admin.firestore().collection('teams').add(team).then(() => {
+//         console.log(`Success! Team ${team.name} has been created succesfully.`);
+//     }).catch(err => {
+//         console.log(err)
+//         throw new functions.https.HttpsError('unknown', 'Error creating team')
+//     })
+// })
 
 
+// exports.subscribeTeam = functions.https.onCall(async (data, context) => {
+//     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
+//     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
+//     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
+//         throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+//     })
 
-    // Vanaf dit punt is er aan de voorwaarden voldaan om een team in te schrijven.
-    // Nu maken we voor elke hond uit het team een scoredocument aan en initialiseren de scores.
-    // Deze waarden worden overschreven wanneer een teamcaptain tijdens een toernooi een score upload.
+//     // Checken of de user tenminste teamcaptain is.
+//     if (requestingUser.customClaims.permissionLevel < 2) {
+//         throw new functions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to subscribe a team')
+//     }
 
-    // De dogs zijn nu niet beschbaar meer om te selecteren voor een ander team
-    data.team.dogs.forEach(async dog => {
-        await admin.firestore().collection("dogs").doc(dog).update({
-            availableForTeam: false
-        });
-    })
+//     // Vanaf dit punt is er aan de voorwaarden voldaan om een team in te mogen schrijven.
+//     // De dogs zijn nu niet beschikbaar meer om te selecteren voor een ander team
+//     data.team.dogs.forEach(async dog => {
+//         await admin.firestore().collection("dogs").doc(dog).update({
+//             availableForTeam: false
+//         });
+//     })
 
-    // Team document aanmaken
-    let team = data.team
-    team.creator = context.auth.token.uid
-    return admin.firestore().collection('teams').add(team).then(() => {
-        console.log(`Success! Team ${team.name} has been created succesfully.`);
-    }).catch(err => {
-        console.log(err)
-        throw new functions.https.HttpsError('unknown', 'Error creating team')
-    })
-})
+//     // Team document aanmaken
+//     let team = data.team
+//     team.creator = context.auth.token.uid
+//     return admin.firestore().collection('teams').add(team).then(() => {
+//         console.log(`Success! Team ${team.name} has been created succesfully.`);
+//     }).catch(err => {
+//         console.log(err)
+//         throw new functions.https.HttpsError('unknown', 'Error creating team')
+//     })
+// })
 
 // exports.imageUploaded = functions.storage.object().onFinalize(object => {
 //     console.log("IMAGE GEUPLOAD")

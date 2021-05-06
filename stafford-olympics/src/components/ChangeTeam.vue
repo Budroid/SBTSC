@@ -14,17 +14,17 @@
       <v-container v-else-if="created" fill-height>
         <v-row class="text-center" justify="center" align="center">
           <v-col cols="12" xs="12" sm="12" md="6">
-            <h2>{{ teamName }}</h2>
-            <p>has been successfully subscribed</p>
+            <h2>{{ team.name }}</h2>
+            <p>has been succesfully updated</p>
             <v-btn @click="$emit('onClose')" color="primary"> DONE </v-btn>
           </v-col>
         </v-row>
       </v-container>
 
       <v-container v-else>
-        <v-form v-model="valid" @keyup.native.enter="valid && createTeam()">
+        <v-form v-model="valid" @keyup.native.enter="valid && updateTeam()">
           <v-text-field
-            v-model.trim="teamName"
+            v-model.trim="team.name"
             :rules="teamNameRules"
             prepend-icon="mdi-account-multiple"
             label="Teamname"
@@ -99,11 +99,11 @@
           <v-col
             ><v-btn class="mr-2" small @click="$emit('onClose')">Cancel</v-btn
             ><v-btn
-              @click="createTeam()"
+              @click="updateTeam()"
               small
               color="primary"
               :disabled="!valid || !selectedDogs.length"
-              >Subscribe</v-btn
+              >Update</v-btn
             ></v-col
           >
         </v-row>
@@ -119,8 +119,9 @@ import { tournamentsCollection } from "@/firebase";
 import { capitalize } from "@/stringutil";
 // import { functions, dogsCollection } from "@/firebase";
 export default {
-  name: "SubscribeTeam",
+  name: "ChangeTeam",
   data: () => ({
+    team: {},
     teamName: "",
     availableDogs: [],
     selectedDogs: [],
@@ -131,9 +132,18 @@ export default {
     err: "",
   }),
   created() {
-    const dogsInTournament = this.teamsForTournament ? this.teamsForTournament.map((team) => team.dogs).flat() : [];
-     // Alle honden die niet in een team voor dit tournament zitten
-    this.availableDogs = this.dogs.filter((dog) => !dogsInTournament.includes(dog.id) && !dog.retired);
+    this.team = { ...this.teamToUpdate };
+    this.team.id = this.teamToUpdate.id;
+    const dogsInTournament = this.teamsForTournament
+      ? this.teamsForTournament.map((team) => team.dogs).flat()
+      : [];
+    // Alle honden die niet in een team voor dit tournament zitten
+    this.availableDogs = this.dogs.filter(
+      (dog) => !dogsInTournament.includes(dog.id) && !dog.retired
+    );
+    this.selectedDogs = this.dogs.filter((dog) =>
+      this.team.dogs.includes(dog.id)
+    );
   },
   components: {},
   methods: {
@@ -155,41 +165,30 @@ export default {
       this.availableDogs.sort((a, b) => a.name.localeCompare(b.name));
       this.selectedDogs.splice(index, 1);
     },
-    createTeam() {
+    updateTeam() {
       this.creating = true;
-      let team = {
-        name: capitalize(this.teamName),
-        dogs: this.selectedDogs.map((dog) => dog.id),
-        creator: this.user.data.uid,
-      };
-
-      let tournamentRef = tournamentsCollection.doc(this.currentTournament.id);
-      tournamentRef.collection('teams').add(team).then(()=>{
+      let tournamentRef = tournamentsCollection.doc(this.$route.params.id).collection("teams").doc(this.team.id);
+      tournamentRef
+        .update({
+          name: capitalize(this.team.name),
+          dogs: this.selectedDogs.map((dog) => dog.id),
+        })
+        .then(() => {
           this.created = true;
-          this.creating = false;   
-      }).catch((err) => {
-          this.err = err.message;
+          this.creating = false;
+        })
+        .catch((err) => {
+          this.err = err;
           this.creating = false;
           this.created = false;
         });
-
-      // tournamentRef
-      //   .update({
-      //     teams: FieldValue.arrayUnion(team),
-      //   })
-      //   .then(() => {
-      //     this.created = true;
-      //     this.creating = false;
-      //   })
-      //   .catch((err) => {
-      //     this.err = err;
-      //     this.creating = false;
-      //     this.created = false;
-      //   });
     },
   },
   computed: {
-    ...mapGetters(["dogs", "currentTournament", "user", "teamsForTournament"]),
+    ...mapGetters(["dogs", "currentTournament", "teamsForTournament"]),
+  },
+  props: {
+    teamToUpdate: Object,
   },
 };
 </script>

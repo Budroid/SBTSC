@@ -42,6 +42,9 @@ const tournamentsCollection = db.collection('tournaments')
 const dogsCollection = db.collection('dogs')
 const teamsCollection = db.collection('teams')
 
+// Types
+// const FieldValue = firebase.firestore.FieldValue
+
 export {
     db,
     auth,
@@ -52,5 +55,6 @@ export {
     teamsCollection,
     GOOGLE_PROVIDER_ID,
     FACEBOOK_PROVIDER_ID,
-    EMAIL_PROVIDER_ID
+    EMAIL_PROVIDER_ID,
+    // FieldValue
   }
