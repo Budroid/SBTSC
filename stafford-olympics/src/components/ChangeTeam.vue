@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-card flat class="mb-0" color="background lighten-1">
+  <v-container ma-0 pa-0>
+    <v-card flat class="ma-0 pa-0" color="background lighten-1">
       <v-container v-if="creating" fill-height>
         <v-row class="text-center" justify="center" align="center">
           <v-col cols="12" xs="12" sm="12" md="6">
@@ -21,7 +21,7 @@
         </v-row>
       </v-container>
 
-      <v-container v-else>
+      <v-container ma-1 pl-2 v-else>
         <v-form v-model="valid" @keyup.native.enter="valid && updateTeam()">
           <v-text-field
             v-model.trim="team.name"
@@ -49,7 +49,7 @@
                   @click="select(dog.id, index)"
                   class="pl-1 pr-2 pb-1"
                 >
-                  <v-list-item-avatar size="25" class="mr-1 mt-0 mb-0">
+                  <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
                     <v-img src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">
@@ -71,7 +71,7 @@
                   @click="deselect(dog.id, index)"
                   class="pl-1 pr-2 pb-1"
                 >
-                  <v-list-item-avatar size="25" class="mr-1 mt-0 mb-0">
+                  <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
                     <v-img src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">

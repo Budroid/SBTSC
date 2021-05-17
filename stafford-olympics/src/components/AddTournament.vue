@@ -1,202 +1,209 @@
 <template>
-<v-container class="pa-0" style="background-color: #121212">
-  <v-stepper v-model="e1" style="background-color: #FFFFFF2A;">
-    <v-stepper-header flat style="box-shadow: none">
-      <v-stepper-step :complete="e1 > 1" step="1"
-        >Tournament type</v-stepper-step
-      >
-      <v-divider></v-divider>
-      <v-stepper-step :complete="e1 > 2" step="2"> Country </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="e1 > 3" step="3"> Startdate </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="created" step="4"> Summary </v-stepper-step>
-    </v-stepper-header>
+  <v-container class="pa-0" style="background-color: #121212;">
+    <v-stepper v-model="e1">
+      <v-stepper-header flat style="box-shadow: none">
+        <v-stepper-step :complete="e1 > 1" step="1"
+          >Tournament type</v-stepper-step
+        >
+        <v-divider></v-divider>
+        <v-stepper-step :complete="e1 > 2" step="2"> Country </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step :complete="e1 > 3" step="3"> Startdate </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step :complete="created" step="4"> Summary </v-stepper-step>
+      </v-stepper-header>
 
-    <v-stepper-items>
-      <v-stepper-content step="1" justify="center" style="padding-top: 0px">
-        <v-card flat class="mb-12" color="transparent" height="200">
-          <v-card-text style="height: 100%">
-            <v-container fill-height>
-              <div>
-                <v-row class="text-center" justify="center">
-                  <v-col cols="12" xs="12" sm="12" md="6">
-                    Select a type of tournament
-                  </v-col>
-                </v-row>
-                <v-row class="text-center" justify="center">
-                  <v-col cols="12" xs="12" sm="12" md="6">
-                    <v-select
-                      v-model="tournamentType"
-                      :items="tournamentTypes"
-                      label="Tournament type"
-                      item-text="type"
-                      item-value="index"
-                      dense
-                      outlined
-                    ></v-select>
-                    {{ tournamentTypeErr }}
-                  </v-col>
-                </v-row>
-              </div>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text @click="cancel()"> Cancel </v-btn>
-            <v-btn color="primary" @click="step()"> Next </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-stepper-content>
+      <v-stepper-items>
+        <v-stepper-content step="1" justify="center" style="padding-top: 0px">
+          <v-card flat class="mb-12" color="transparent" height="200">
+            <v-card-text style="height: 100%">
+              <v-container  >
+                
+                  <v-row class="text-center" justify="center">
+                    <v-col cols="12" xs="12" sm="12" md="6">
+                      Select a type of tournament
+                    </v-col>
+                  </v-row>
+                  <v-row class="text-center" justify="center">
+                    <v-col cols="10" xs="10" sm="10" md="4">
+                      <v-select
+                        v-model="tournamentType"
+                        :items="tournamentTypes"
+                        label="Tournament type"
+                        item-text="type"
+                        item-value="index"
+                        dense
+                        outlined
+                      ></v-select>
+                      {{ tournamentTypeErr }}
+                    </v-col>
+                  </v-row>
+                
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn text @click="cancel()"> Cancel </v-btn>
+              <v-btn color="primary" @click="step()"> Next </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-stepper-content>
 
-      <v-stepper-content step="2" style="padding-top: 0px">
-        <v-card flat class="mb-12" color="transparent" height="150">
-          <v-card-text style="height: 100%">
-            <v-container fill-height>
-              <div>
-                <v-row class="text-center" align="center" justify="center">
-                  <v-col cols="12" xs="12" sm="12" md="6">
-                    Select a country
-                  </v-col>
-                </v-row>
-                <v-row class="text-center" align="center" justify="center">
-                  <v-col cols="12" xs="12" sm="12" md="6">
-                    <v-select
-                      v-model="country"
-                      :items="countries"
-                      item-text="fullName"
-                      item-value="shortCode"
-                      label="Country"
-                      dense
-                      outlined
-                    ></v-select>
-                    {{ countryErr }}
-                  </v-col>
-                </v-row>
-              </div>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text @click="e1 = 1"> Back </v-btn>
-            <v-btn color="primary" @click="step()"> Next </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-stepper-content>
+        <v-stepper-content step="2" style="padding-top: 0px">
+          <v-card flat class="mb-12" color="transparent" height="150">
+            <v-card-text style="height: 100%">
+              <v-container>
+                <div>
+                  <v-row class="text-center" align="center" justify="center">
+                    <v-col cols="12" xs="12" sm="12" md="6">
+                      Select a country
+                    </v-col>
+                  </v-row>
+                  <v-row class="text-center" align="center" justify="center">
+                    <v-col cols="12" xs="12" sm="12" md="6">
+                      <v-select
+                        v-model="country"
+                        :items="countries"
+                        item-text="fullName"
+                        item-value="shortCode"
+                        label="Country"
+                        dense
+                        outlined
+                      ></v-select>
+                      {{ countryErr }}
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn text @click="e1 = 1"> Back </v-btn>
+              <v-btn color="primary" @click="step()"> Next </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-stepper-content>
 
-      <v-stepper-content step="3" style="padding-top: 0px">
-        <v-card flat class="mb-12" color="transparent" height="150">
-          <v-card-text style="height: 100%">
-            <v-container fill-height>
-              <div>
+        <v-stepper-content step="3" style="padding-top: 0px">
+          <v-card flat class="mb-12" color="transparent" height="150">
+            <v-card-text style="height: 100%">
+              <v-container>
+                <div>
+                  <v-row class="text-center" justify="center" align="center">
+                    <v-col cols="12" xs="12" sm="12" md="6">
+                      Select a startdate
+                    </v-col>
+                  </v-row>
+                  <v-row class="text-center" justify="center" align="center">
+                    <v-col cols="12" xs="12" sm="12" md="6">
+                      <v-dialog
+                        ref="dialog"
+                        v-model="dateModal"
+                        :return-value.sync="picker"
+                        persistent
+                        width="290px"
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-text-field
+                            v-model="picker"
+                            label="Startdate"
+                            readonly
+                            outlined
+                            dense
+                            v-bind="attrs"
+                            v-on="on"
+                          ></v-text-field>
+                          {{ pickerErr }}
+                        </template>
+                        <v-date-picker v-model="picker" :min="today">
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="dateModal = false"
+                          >
+                            Cancel
+                          </v-btn>
+                          <v-btn
+                            text
+                            color="primary"
+                            @click="$refs.dialog.save(picker)"
+                          >
+                            OK
+                          </v-btn>
+                        </v-date-picker>
+                      </v-dialog>
+                    </v-col>
+                  </v-row>
+                </div>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn text @click="e1--"> Back </v-btn>
+              <v-btn color="primary" @click="step()"> Next </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-stepper-content>
+
+        <v-stepper-content step="4" justify="center" style="padding-top: 0px">
+          <v-card flat class="mb-12" color="transparent" height="150">
+            <v-card-text style="height: 100%" justify="center">
+              <v-container v-if="creating" fill-height>
                 <v-row class="text-center" justify="center" align="center">
                   <v-col cols="12" xs="12" sm="12" md="6">
-                    Select a startdate
-                  </v-col>
-                </v-row>
-                <v-row class="text-center" justify="center" align="center">
-                  <v-col cols="12" xs="12" sm="12" md="6">
-                    <v-dialog
-                      ref="dialog"
-                      v-model="dateModal"
-                      :return-value.sync="picker"
-                      persistent
-                      width="290px"
+                    <v-progress-circular
+                      :size="100"
+                      color="primary"
+                      indeterminate
+                      >Creating tournament</v-progress-circular
                     >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="picker"
-                          label="Startdate"
-                          readonly
-                          outlined
-                          dense
-                          v-bind="attrs"
-                          v-on="on"
-                        ></v-text-field>
-                        {{ pickerErr }}
-                      </template>
-                      <v-date-picker v-model="picker" :min="today">
-                        <v-spacer></v-spacer>
-                        <v-btn text color="primary" @click="dateModal = false">
-                          Cancel
-                        </v-btn>
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="$refs.dialog.save(picker)"
-                        >
-                          OK
-                        </v-btn>
-                      </v-date-picker>
-                    </v-dialog>
                   </v-col>
                 </v-row>
-              </div>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn text @click="e1--"> Back </v-btn>
-            <v-btn color="primary" @click="step()"> Next </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-stepper-content>
+              </v-container>
 
-      <v-stepper-content step="4" justify="center" style="padding-top: 0px">
-        <v-card flat class="mb-12" color="transparent" height="150">
-          <v-card-text style="height: 100%" justify="center">
-            <v-container v-if="creating" fill-height>
-              <v-row class="text-center" justify="center" align="center">
-                <v-col cols="12" xs="12" sm="12" md="6">
-                  <v-progress-circular :size="100" color="primary" indeterminate
-                    >Creating tournament</v-progress-circular
-                  >
-                </v-col>
-              </v-row>
-            </v-container>
+              <v-container v-else-if="created" fill-height>
+                <v-row class="text-center" justify="center" align="center">
+                  <v-col cols="12" xs="12" sm="12" md="6">
+                    <h2>{{ tournament.name }}</h2>
+                    <p>has been succesfully created</p>
+                  </v-col>
+                </v-row>
+              </v-container>
 
-            <v-container v-else-if="created" fill-height>
-              <v-row class="text-center" justify="center" align="center">
-                <v-col cols="12" xs="12" sm="12" md="6">
-                  <h2>{{ tournament.name }}</h2>
-                  <p>has been succesfully created</p>
-                </v-col>
-              </v-row>
-            </v-container>
-
-            <v-container v-else fill-height>
-              <v-row class="text-center" justify="center" align="center">
-                <v-col cols="12" xs="12" sm="12" md="6">
-                  <p>Summary</p>
-                  <h3>{{ tournament.name }}</h3>
-                  <p style="color: white">{{ getDate(tournament.date) }}</p>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn
-              v-if="created"
-              class="mx-2"
-              color="primary"
-              depressed
-              @click="done()"
-            >
-              Done
-            </v-btn>
-            <v-btn v-if="!creating && !created" text @click="e1 = 3">
-              Back
-            </v-btn>
-            <v-btn
-              v-if="!creating && !created"
-              color="primary"
-              @click="createTournament()"
-            >
-              Create
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-stepper-content>
-    </v-stepper-items>
-  </v-stepper>
-</v-container>
+              <v-container v-else fill-height>
+                <v-row class="text-center" justify="center" align="center">
+                  <v-col cols="12" xs="12" sm="12" md="6">
+                    <p>Summary</p>
+                    <h3>{{ tournament.name }}</h3>
+                    <p style="color: white">{{ getDate(tournament.date) }}</p>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                v-if="created"
+                class="mx-2"
+                color="primary"
+                depressed
+                @click="done()"
+              >
+                Done
+              </v-btn>
+              <v-btn v-if="!creating && !created" text @click="e1 = 3">
+                Back
+              </v-btn>
+              <v-btn
+                v-if="!creating && !created"
+                color="primary"
+                @click="createTournament()"
+              >
+                Create
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
+  </v-container>
 </template>
 
 <script>
@@ -303,7 +310,9 @@ export default {
           let tournamentName = "";
           let tournamentDate = new Date(this.picker);
           let year = tournamentDate.getFullYear();
-          let championship = this.countries.find(country => country.shortCode === this.country).championship
+          let championship = this.countries.find(
+            (country) => country.shortCode === this.country
+          ).championship;
           switch (this.tournamentType) {
             case 1:
               tournamentName += championship + " " + year;
@@ -334,7 +343,7 @@ export default {
             name: tournamentName,
             startdate: tournamentDate,
             country: this.country,
-            state: "Open for subscription",
+            state: { code: "ofs", text: "Open for subscription" },
           };
           this.tournament = tournament;
           this.e1++;
@@ -351,8 +360,6 @@ export default {
         this.created = true;
         this.creating = false;
       });
-
-  
     },
     done() {
       this.$emit("onSuccess");

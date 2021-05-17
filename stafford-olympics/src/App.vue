@@ -8,7 +8,9 @@
       <v-spacer></v-spacer>
     </v-app-bar>
     <v-main>
+      
       <router-view />
+      
     </v-main>
 
     <!-- Update snackbar -->

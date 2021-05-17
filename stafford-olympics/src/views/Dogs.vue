@@ -1,4 +1,5 @@
 <template>
+<v-fade-transition hide-on-leave>
   <v-container
     :ma-0="$vuetify.breakpoint.mdAndDown"
     :pa-0="$vuetify.breakpoint.mdAndDown"
@@ -34,7 +35,7 @@
             </div>
           </v-expand-transition>
           <template v-for="dog, index in filteredDogs">
-            <v-list-item :key="`${index}-${dog.id}`">
+            <v-list-item :key="`${index}-${dog.id}`" v-ripple="{ center: true }">
               <v-list-item-avatar>
                 <v-avatar>
                   <v-img src="@/assets/default.jpg"></v-img>
@@ -80,8 +81,8 @@
       ><v-icon dark color="white">mdi-magnify</v-icon>
     </v-btn>
     <!-- Create dog dialog -->
-    <v-dialog v-model="dogDialog" v-if="user && user.permissionLevel >= 2">
-      <template v-slot:activator="{  }">
+    <v-dialog v-model="dogDialog" v-if="user && user.permissionLevel >= 2" max-width="600">
+      <template v-slot:activator="{ on }">
         <v-btn
           style="z-index: 100; bottom: 72px"
           fab
@@ -90,6 +91,7 @@
           fixed
           right
           bottom
+          v-on="on"
    
         >
           <v-icon dark color="white">mdi-plus</v-icon>
@@ -103,6 +105,7 @@
       />
     </v-dialog>
   </v-container>
+</v-fade-transition>
 </template>
 <script>
 import AddDog from "../components/AddDog.vue";

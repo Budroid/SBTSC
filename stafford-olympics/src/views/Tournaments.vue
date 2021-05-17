@@ -1,4 +1,5 @@
 <template>
+<v-fade-transition hide-on-leave>
   <v-container
     :ma-0="$vuetify.breakpoint.mdAndDown"
     :pa-0="$vuetify.breakpoint.mdAndDown"
@@ -7,9 +8,10 @@
       <v-col cols="12" xs="12" sm="12" md="6" lg="4" xl="4">
         <v-list>
           <v-subheader style="height: 20px">Tournaments</v-subheader>
-          <template v-for="tournament in tournaments">
+          <template v-for="tournament, index in tournaments">
             <v-list-item
-              :key="tournament.id"
+            v-ripple="{ center: true }"
+              :key="`${index}-${tournament.id}`"
               :to="'/tournament/' + tournament.id"
             >
               <v-list-item-avatar tile>
@@ -22,28 +24,41 @@
               <v-list-item-content>
                 <v-list-item-title>{{ tournament.name }}</v-list-item-title>
                 <v-list-item-subtitle>
-                  <small>{{
-                    tournament.startdate.toDate().toLocaleDateString()
-                  }}</small>
+                  <small
+                    >Start date:
+                    {{
+                      tournament.startdate.toDate().toLocaleDateString()
+                    }}</small
+                  >
                 </v-list-item-subtitle>
-                <small
-                  ><em>{{ tournament.state }}</em></small
-                >
               </v-list-item-content>
-
-              <v-list-item-action v-if="user && user.permissionLevel == 3">
-                <v-btn text @click="startTournament()" color="primary"
-                  >Start</v-btn
-                >
-              </v-list-item-action>
+              <v-list-item-action
+                ><small>
+                  <em
+                    v-if="tournament.state.code === 'act'"
+                    class="green--text text--lighten-2"
+                    >{{ tournament.state.text }}</em
+                  >
+                  <em
+                    v-if="tournament.state.code === 'ofs'"
+                    class="grey--text text--lighten-2"
+                    >{{ tournament.state.text }}</em
+                  >
+                  <em
+                    v-if="tournament.state.code === 'fin'"
+                    class="red--text text--lighten-2"
+                    >{{ tournament.state.text }}</em
+                  >
+                </small></v-list-item-action
+              >
             </v-list-item>
-            <v-divider v-bind:key="tournament.name" />
+            <v-divider v-bind:key="tournament.id" />
           </template>
         </v-list>
       </v-col>
     </v-row>
     <!-- Create tournament dialog -->
-    <v-dialog v-model="createDialog" v-if="user && user.permissionLevel == 3">
+    <v-dialog v-model="createDialog" v-if="user && user.permissionLevel == 3" max-width="900">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           style="z-index: 100; bottom: 72px"
@@ -65,6 +80,7 @@
       />
     </v-dialog>
   </v-container>
+</v-fade-transition>
 </template>
 <script>
 import AddTournament from "../components/AddTournament.vue";
@@ -76,11 +92,7 @@ export default {
     createDialog: false,
     successDialog: false,
   }),
-  methods: {
-    startTournament() {
-      console.log("woefha");
-    },
-  },
+  methods: {},
   computed: {
     ...mapGetters(["user", "tournaments"]),
   },

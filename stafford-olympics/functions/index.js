@@ -1,6 +1,8 @@
-const functions = require("firebase-functions").region('europe-west2');
+const globalFunctions = require("firebase-functions")
+const functions = globalFunctions.region('europe-west2');
 const admin = require("firebase-admin");
 admin.initializeApp();
+const db = admin.firestore();
 
 exports.addDefaultPermissions = functions.auth.user().onCreate(user => {
     // Deze functie wordt uitgevoerd wanneer er een nieuwe gebruiker gemaakt wordt.
@@ -20,11 +22,11 @@ exports.addDefaultPermissions = functions.auth.user().onCreate(user => {
 exports.listUsers = functions.https.onCall(async (data, context) => {
 
     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-        throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
     })
 
     if (requestingUser.customClaims.permissionLevel !== 3) {
-        throw new functions.https.HttpsError('permission-denied', 'Only admins are allowed to list the users.')
+        throw new globalFunctions.https.HttpsError('permission-denied', 'Only admins are allowed to list the users.')
     }
 
     return admin
@@ -38,7 +40,7 @@ exports.listUsers = functions.https.onCall(async (data, context) => {
             return users;
         })
         .catch(() => {
-            throw new functions.https.HttpsError('unknown', 'Error listing users')
+            throw new globalFunctions.https.HttpsError('unknown', 'Error listing users')
         });
 })
 
@@ -50,28 +52,28 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
 
     // Default admin kan niet aangepast worden
     if (emailOfUserToModify === defaultAdmin) {
-        throw new functions.https.HttpsError('permission-denied', 'You are not allowed to modify this user.')
+        throw new globalFunctions.https.HttpsError('permission-denied', 'You are not allowed to modify this user.')
     }
 
     // Alleen mogelijke levels toegestaan
     if (![1, 2, 3].includes(newPermissionLevel)) {
-        throw new functions.https.HttpsError('invalid-argument', 'Invalid permission level')
+        throw new globalFunctions.https.HttpsError('invalid-argument', 'Invalid permission level')
     }
 
     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-        throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
     })
 
     // Indien geen admin, dan meteen terug met een foutmelding
     if (requestingUser.customClaims.permissionLevel !== 3) {
-        throw new functions.https.HttpsError('permission-denied', 'Only admins are allowed to modify a user.')
+        throw new globalFunctions.https.HttpsError('permission-denied', 'Only admins are allowed to modify a user.')
     }
 
     // User ophalen en nieuw permissie level toekennen
     const targetUser = await admin.auth().getUserByEmail(emailOfUserToModify).catch(() => {
-        throw new functions.https.HttpsError('not-found', 'Unable to find this user');
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to find this user');
     })
 
     return admin.auth().setCustomUserClaims(targetUser.uid, {
@@ -81,62 +83,122 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
         return { permissionLevel: newPermissionLevel }
     }).catch(err => {
         console.log(err);
-        throw new functions.https.HttpsError('cancelled', 'Modifying failed.')
+        throw new globalFunctions.https.HttpsError('cancelled', 'Modifying failed.')
     });
 })
 
-// exports.updateDog = functions.https.onCall(async (data, context) => {
-//     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
-//     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
-//     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-//         throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
-//     })
+exports.startTournament = functions.https.onCall(async (data, context) => {
+    // Gegevens van de aanvrager checken
+    const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+    })
 
-//     // Checken of de user de teamcaptain van het team is
-//     if (requestingUser.uid === data.team.creator) {
-//         throw new functions.https.HttpsError('permission-denied', 'Only the teamcaptain of this team can perform an update')
-//     }
+    if (requestingUser.customClaims.permissionLevel !== 3) {
+        throw new globalFunctions.https.HttpsError('permission-denied', 'Only admins are allowed to start a tournament.')
+    }
 
-//     // De nieuwe dogs zijn nu niet beschikbaar meer om te selecteren voor een ander team
-//     data.team.newDogs.forEach(async dog => {
-//         await admin.firestore().collection("dogs").doc(dog).update({
-//             availableForTeam: false
-//         });
-//     })
-//     // De verwijderde dogs zijn nu weer beschikbaar meer om te selecteren
-//     data.team.removedDogs.forEach(async dog => {
-//         await admin.firestore().collection("dogs").doc(dog).update({
-//             availableForTeam: true
-//         });
-//     })
+    const events = [
+        { id: 1, name: "50 meter", units: "sec" },
+        { id: 2, name: "100 meter", units: "sec" },
+        { id: 3, name: "Powersprint", units: "sec" },
+        { id: 4, name: "Long jump", units: "cm" },
+        { id: 5, name: "High jump", units: "cm" },
+        { id: 6, name: "Tug of war", units: "min" },
+        { id: 7, name: "Hangtime", units: "min" },
+        { id: 8, name: "A-Frame", units: "times" },
+        { id: 9, name: "Trackmill", units: "times" },
+        { id: 10, name: "10 Mile", units: "min" },
+      ]
 
-//     // Team document updaten
-//     let team = data.team
-//     return admin.firestore().collection('teams').add(team).then(() => {
-//         console.log(`Success! Team ${team.name} has been created succesfully.`);
-//     }).catch(err => {
-//         console.log(err)
-//         throw new functions.https.HttpsError('unknown', 'Error creating team')
-//     })
-// })
+    // Voor elk event een "scoreformulier" per hond maken
+    const batch = db.batch()
+    const tournamentRef = db.collection('tournaments').doc(data.tournamentId)
+    const resultsRef = tournamentRef.collection('results');
+
+    // events.forEach(event => {
+    //    let dogsWithResults = data.dogs.map(dog => ({
+    //        dogId: dog,
+    //        points: 0
+    //    }))
+    //    let eventResults = {
+    //       dogs: dogsWithResults,
+    //       meta: event 
+    //    }
+    //    const initialResultRef = eventsRef.doc() 
+    //    batch.set(initialResultRef, eventResults)
+    // })
+
+    data.dogs.forEach(dogId => {
+        let results = events.map(event => ({
+            eventId: event.id,
+            score: 0,
+            points: 0
+        }));
+        let resultsforDog = {
+            dogId: dogId,
+            results: results
+        }
+        const initialResultRef = resultsRef.doc()
+        batch.set(initialResultRef, resultsforDog)
+    })
+
+    return batch.commit().then(() => {
+        // State van het tournament updaten naar "Active"
+        return tournamentRef.update({
+            state: { code: "act", text: "Active" },
+        })
+            .then(() => {
+            }).catch(err => {
+                throw new globalFunctions.https.HttpsError('unknown', err.message)
+            })
+    }).catch(error => {
+        console.log(error)
+        throw new globalFunctions.https.HttpsError('unknown', 'Creating scoresheet failed')
+    });
+
+
+
+})
+
+exports.finishTournament = functions.https.onCall(async (data, context) => {
+    // Gegevens van de aanvrager checken
+    const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+    })
+
+    if (requestingUser.customClaims.permissionLevel !== 3) {
+        throw new globalFunctions.https.HttpsError('permission-denied', 'Only admins are allowed to finish a tournament.')
+    }
+
+    // State van het tournament updaten naar "Finished"
+    return db.collection('tournaments').doc(data.tournamentId).update({
+        state: { code: "fin", text: "Finished" },
+    })
+        .then(() => {
+            console.log(`Tournament finished!.`);
+        }).catch(err => {
+            console.log(err)
+            throw new globalFunctions.https.HttpsError('unknown', 'Error finishiing tournament')
+        })
+})
 
 
 // exports.subscribeTeam = functions.https.onCall(async (data, context) => {
 //     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
 //     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
 //     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-//         throw new functions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+//         throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
 //     })
 
 //     // Checken of de user tenminste teamcaptain is.
 //     if (requestingUser.customClaims.permissionLevel < 2) {
-//         throw new functions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to subscribe a team')
+//         throw new globalFunctions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to subscribe a team')
 //     }
 
 //     // Vanaf dit punt is er aan de voorwaarden voldaan om een team in te mogen schrijven.
 //     // De dogs zijn nu niet beschikbaar meer om te selecteren voor een ander team
 //     data.team.dogs.forEach(async dog => {
-//         await admin.firestore().collection("dogs").doc(dog).update({
+//         await db.collection("dogs").doc(dog).update({
 //             availableForTeam: false
 //         });
 //     })
@@ -144,11 +206,11 @@ exports.modifyPermissionLevel = functions.https.onCall(async (data, context) => 
 //     // Team document aanmaken
 //     let team = data.team
 //     team.creator = context.auth.token.uid
-//     return admin.firestore().collection('teams').add(team).then(() => {
+//     return db.collection('teams').add(team).then(() => {
 //         console.log(`Success! Team ${team.name} has been created succesfully.`);
 //     }).catch(err => {
 //         console.log(err)
-//         throw new functions.https.HttpsError('unknown', 'Error creating team')
+//         throw new globalFunctions.https.HttpsError('unknown', 'Error creating team')
 //     })
 // })
 

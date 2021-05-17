@@ -1,4 +1,5 @@
 <template>
+<v-fade-transition hide-on-leave>
   <v-container fill-height>
     <v-container>
       <v-row>
@@ -23,6 +24,7 @@
       >
     </v-container>
   </v-container>
+</v-fade-transition>
 </template>
 <script>
 import { auth } from '@/firebase';
