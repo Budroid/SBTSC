@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container pb-12>
     <v-container v-if="currentTournament.state.code === 'ofs'" pl-9 pr-9 pt-9>
       <small
         ><em>
@@ -60,7 +60,7 @@ export default {
     inchClass: null,
   }),
   created() {
-  
+
   },
   methods: {
     getDog(dogId) {
@@ -107,7 +107,7 @@ export default {
       return this.resultsForTournament.map((result) => {
         return {
           dog: this.getDog(result.dogId),
-          total: result.results.reduce(
+          total: Object.values(result.results).reduce(
             (accumulator, currentValue) => accumulator + currentValue.points,
             0
           ),

@@ -1,6 +1,7 @@
 const globalFunctions = require("firebase-functions")
 const functions = globalFunctions.region('europe-west2');
 const admin = require("firebase-admin");
+const formulas = require("./formulas");
 admin.initializeApp();
 const db = admin.firestore();
 
@@ -108,32 +109,21 @@ exports.startTournament = functions.https.onCall(async (data, context) => {
         { id: 8, name: "A-Frame", units: "times" },
         { id: 9, name: "Trackmill", units: "times" },
         { id: 10, name: "10 Mile", units: "min" },
-      ]
+    ]
 
     // Voor elk event een "scoreformulier" per hond maken
     const batch = db.batch()
     const tournamentRef = db.collection('tournaments').doc(data.tournamentId)
     const resultsRef = tournamentRef.collection('results');
 
-    // events.forEach(event => {
-    //    let dogsWithResults = data.dogs.map(dog => ({
-    //        dogId: dog,
-    //        points: 0
-    //    }))
-    //    let eventResults = {
-    //       dogs: dogsWithResults,
-    //       meta: event 
-    //    }
-    //    const initialResultRef = eventsRef.doc() 
-    //    batch.set(initialResultRef, eventResults)
-    // })
-
     data.dogs.forEach(dogId => {
-        let results = events.map(event => ({
-            eventId: event.id,
-            score: 0,
-            points: 0
-        }));
+        let results = {}
+        events.forEach(event => {
+            results[`${event.id}`] = {
+                points: 0
+            }
+        })
+
         let resultsforDog = {
             dogId: dogId,
             results: results
@@ -183,45 +173,43 @@ exports.finishTournament = functions.https.onCall(async (data, context) => {
 })
 
 
-// exports.subscribeTeam = functions.https.onCall(async (data, context) => {
-//     // De context die hier wordt meegestuurd is afkomstig van de client. De permissies voor deze gebruiker kunnen echter gewijzigd zijn.
-//     // Daarom met het email adres uit de context de user eerst fetchen en daarvan de rechten checken.
-//     const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
-//         throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
-//     })
+exports.submitScoresForEvent = functions.https.onCall(async (data, context) => {
+    // Gegevens van de aanvrager checken
+    const requestingUser = await admin.auth().getUserByEmail(context.auth.token.email).catch(() => {
+        throw new globalFunctions.https.HttpsError('not-found', 'Unable to check your permissions. Try again later');
+    })
 
-//     // Checken of de user tenminste teamcaptain is.
-//     if (requestingUser.customClaims.permissionLevel < 2) {
-//         throw new globalFunctions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to subscribe a team')
-//     }
+    if (requestingUser.customClaims.permissionLevel < 2) {
+        throw new globalFunctions.https.HttpsError('permission-denied', 'You have to be at least teamcaptain to submit scores')
+    }
 
-//     // Vanaf dit punt is er aan de voorwaarden voldaan om een team in te mogen schrijven.
-//     // De dogs zijn nu niet beschikbaar meer om te selecteren voor een ander team
-//     data.team.dogs.forEach(async dog => {
-//         await db.collection("dogs").doc(dog).update({
-//             availableForTeam: false
-//         });
-//     })
+    const batch = db.batch()
+    const tournamentRef = db.collection('tournaments').doc(data.tournamentId)
+    const resultsRef = tournamentRef.collection('results');
 
-//     // Team document aanmaken
-//     let team = data.team
-//     team.creator = context.auth.token.uid
-//     return db.collection('teams').add(team).then(() => {
-//         console.log(`Success! Team ${team.name} has been created succesfully.`);
-//     }).catch(err => {
-//         console.log(err)
-//         throw new globalFunctions.https.HttpsError('unknown', 'Error creating team')
-//     })
-// })
+    data.scores.forEach(score => {
+        const resultRef = resultsRef.doc(score.ref);
+        const scoreUpdate = {}
+        if (score.score !== '') {
+        // We hebben een waarde (kan 0 zijn), dus we moeten updaten
+            const pointsAndStar = formulas.calculatePointsAndStar(score.score, score.eventId, score.class, score.height, score.win)
+            scoreUpdate[`results.${score.eventId}`] = {
+                score: score.score,
+                win: score.win || false,
+                points: pointsAndStar.points,
+                star: pointsAndStar.star
+            }
+        } else{
+            // Lege waarde submitten is score verwijderen
+            scoreUpdate[`results.${score.eventId}`] = {
+                points: 0,
+            }
+        }
+        batch.update(resultRef, scoreUpdate)
+    })
 
-// exports.imageUploaded = functions.storage.object().onFinalize(object => {
-//     console.log("IMAGE GEUPLOAD")
-//     console.log("object.contentType: " + object.contentType)
-//     console.log("object.resizedImage: " + object.resizedImage)
-//     // if (object.resizedImage && object.contentType == 'image/jpeg'){
-//     //     const downloadURL = object.selfLink + "?alt=media&token=" + object.firebaseStorageDownloadTokens
-//     //     console.log("Download URL: " + downloadURL)
-//     // }else{
-//     //     console.log("Geen resized plaatje?")
-//     // }
-// });
+    return batch.commit().catch(error => {
+        console.log(error)
+        throw new globalFunctions.https.HttpsError('unknown', 'Submitting score failed')
+    });
+})

@@ -1,17 +1,7 @@
 <template>
-  <v-container ma-0 pa-0 fill-height style="height: 100vh !important">
-    <v-card v-if="proccessing">
-      <v-card-text class="text-center">
-        <v-container pt-9>
-          <v-progress-circular :size="100" color="primary" indeterminate
-            >Proccessing</v-progress-circular
-          >
-        </v-container>
-      </v-card-text>
-    </v-card>
-
+  <v-container ma-0 pa-0>
     <v-card
-      height="100vh"
+     min-height="100vh"
       color="background lighten-1"
       class="pt-4 pb-4"
       v-if="!proccessing && user.permissionLevel > 1"
@@ -22,22 +12,30 @@
         >
         <v-expansion-panels class="mt-6">
           <v-expansion-panel
-            v-for="(event, index) in events"
+            v-for="(event, index) in dogResults"
             :key="`${index}-${event.id}`"
           >
-            <v-expansion-panel-header>
+            <v-expansion-panel-header :disable-icon-rotate="isDone(event)">
+              <template v-if="isDone(event)" v-slot:actions>
+                <v-icon color="teal">mdi-check</v-icon>
+              </template>
               <template v-slot:default="{}">
                 <v-row no-gutters>
                   <v-col cols="12"> {{ event.name }} </v-col>
                 </v-row>
               </template>
             </v-expansion-panel-header>
-            <v-expansion-panel-content dense>
-              <v-list dense color="background lighten-2">
-                <template v-for="(dog, index) in myDogs">
+            <v-expansion-panel-content dense color="background lighten-2">
+              <v-container pt-9 v-if="submitting" style="text-align: center">
+                <v-progress-circular :size="100" color="primary" indeterminate
+                  >Submitting scores</v-progress-circular
+                >
+              </v-container>
+              <v-list v-else dense color="background lighten-2">
+                <template v-for="(score, index) in event.scores">
                   <v-list-item
                     dense
-                    :key="`${index}-${dog}`"
+                    :key="`${index}-${score.dogId}`"
                     style="min-height: 25px"
                   >
                     <v-list-item-content class="pt-0 pb-0">
@@ -47,7 +45,7 @@
                           :cols="event.id === 6 ? 3 : 4"
                           align-self="center"
                         >
-                          {{ getDogName(dog.dogId) }}
+                          {{ score.dogName }}
                         </v-col>
 
                         <v-col
@@ -61,18 +59,19 @@
                             rounded
                             filled
                             dense
-                            :suffix="event.meta.units"
-                            :value="dog.score"
+                            :suffix="event.units"
+                            v-model="score.score"
                           ></v-text-field>
                         </v-col>
                         <v-col
-                          v-if="event.meta.id === 6"
+                          v-if="event.id === 6"
                           cols="3"
                           align-self="center"
                           ><v-checkbox
                             class="crapremoved ma-0 pa-0"
                             dense
                             label="win"
+                            v-model="score.win"
                           ></v-checkbox
                         ></v-col>
 
@@ -80,8 +79,8 @@
                           cols="3"
                           align-self="center"
                           style="text-align: right; padding-right: 5px"
-                          ><small v-show="dog.score">
-                            {{ dog.points }} pts
+                          ><small v-show="score.score">
+                            {{ score.points }} pts
                           </small></v-col
                         >
                       </v-row>
@@ -92,7 +91,10 @@
                       <!-- </v-list-item-title> -->
                     </v-list-item-content>
                     <v-list-item-action-text>
-                      <v-icon v-if="dog.score" size="20" color="grey"
+                      <v-icon
+                        v-if="score.star && score.score"
+                        size="20"
+                        :color="score.star"
                         >mdi-star</v-icon
                       >
                       <v-icon v-else size="20" color="background lighten-2"
@@ -102,14 +104,19 @@
                   </v-list-item>
                 </template>
               </v-list>
+              <v-btn
+                @click="submitScores(event)"
+                class="pa-2 ma-3"
+                right
+                small
+                color="primary"
+                >{{ isDone(event) ? "Update" : "Submit" }} scores for
+                {{ event.name }}</v-btn
+              >
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-card-text>
-      <!-- <v-card-actions
-        ><v-btn small>Cancel</v-btn
-        ><v-btn color="primary" small>Sure, lets go!</v-btn></v-card-actions
-      > -->
     </v-card>
   </v-container>
 </template>
@@ -117,31 +124,93 @@
 <script>
 import { mapGetters } from "vuex";
 import { events } from "@/constants";
+import { functions } from "@/firebase";
+
 export default {
   data: () => ({
     proccessing: false,
     events: events,
     myDogs: [],
+    submitting: false,
+    originalResultList: [],
   }),
+  beforeDestroy() {},
   created() {
     //  Deze is vet he: :P
     this.myDogs = this.teamsForTournament
       .filter((team) => team.creator == this.user.data.uid)
       .map((team) => team.dogs)
       .flat();
+    this.originalResultList = [...this.resultsForTournament];
   },
   methods: {
-    getDogName(dogId) {
-      return this.dogs.find((dog) => dog.id === dogId).name;
+    getDog(dogId) {
+      return this.dogs.find((dog) => dog.id === dogId);
     },
-    // isMyDog(dogId){
-    //   return this.myDogs.some(dog => dog === dogId)
-    // },
-    // getResult(eventId, dogId) {
-    //   return this.resultsForTournament
-    //     .find((result) => result.dogId === dogId)
-    //     .results.find((score) => score.eventId === eventId);
-    // },
+    getScore(eventId, dogId) {
+      const resultSet = this.resultsForTournament.find(
+        (test) => test.dogId === dogId
+      );
+      let result = resultSet.results[eventId];
+      result.eventId = eventId;
+      result.ref = resultSet.id;
+      return { ...result };
+    },
+    isDone(event) {
+      return !event.scores.some((score) => !score.score);
+    },
+    submitScores(event) {
+      this.submitting = true;
+      // Checken welke waarden veranderd zijn, zodat niet alle scores steeds opnieuw gesubmit worden.
+      let changes = [];
+      event.scores.forEach((score) => {
+        const remoteScore = this.getScore(score.eventId, score.dogId);
+
+        const scoreUpdated =
+          remoteScore.score !== score.score &&
+          !(!remoteScore.score && !score.score);
+
+        const winUpdated =
+          remoteScore.win !== score.win &&
+          !(
+            typeof remoteScore.win === "undefined" &&
+            typeof score.win === "undefined"
+          );
+
+        if (scoreUpdated || winUpdated) {
+          changes.push(score);
+        }
+      });
+
+      // Alleen submitten als er iets veranderd is
+      if (changes.length) {
+        // Object bakken dat we aan de firestore kunnen voeren
+        let submission = {
+          tournamentId: this.currentTournament.id,
+          scores: changes.map((score) => ({
+            ref: score.ref,
+            dogId: score.dogId,
+            eventId: score.eventId,
+            score: score.score,
+            win: score.win || false,
+            class: score.class,
+            height: score.height,
+          })),
+        };
+        console.log(submission);
+        const submit = functions.httpsCallable("submitScoresForEvent");
+        submit(submission)
+          .then(() => {
+            this.submitting = false;
+          })
+          .catch((err) => {
+            console.log(err.message);
+            this.submitting = false;
+          });
+      } else {
+        this.submitting = false;
+      }
+    },
     close() {
       this.$emit("onClose");
     },
@@ -152,7 +221,28 @@ export default {
       "teamsForTournament",
       "dogs",
       "resultsForTournament",
+      "currentTournament",
     ]),
+    dogResults() {
+      // Structuur opbouwen om op het scherm te kunnen tonen
+      return events.map((event) => {
+        return {
+          id: event.id,
+          name: event.name,
+          units: event.units,
+          scores: this.myDogs.map((dog) => {
+            let score = this.getScore(event.id, dog);
+            let dogForResult = this.getDog(dog);
+            score.class = dogForResult.class;
+            score.height = dogForResult.height;
+            score.dogName = dogForResult.name;
+            score.dogId = dogForResult.id;
+            score.dogImage = dogForResult.image;
+            return score;
+          }),
+        };
+      });
+    },
   },
 };
 </script>

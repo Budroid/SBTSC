@@ -145,7 +145,7 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog v-model="submitScoreDialog" max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly" 
+      <v-dialog v-model="submitScoreDialog" max-width="600" :fullscreen="$vuetify.breakpoint.xsOnly" scrollable
         ><submit-score v-if="submitScoreDialog" @onClose="close()"
       /></v-dialog>
     </v-container>
