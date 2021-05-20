@@ -196,7 +196,7 @@ exports.submitScoresForEvent = functions.https.onCall(async (data, context) => {
             scoreUpdate[`results.${score.eventId}`] = {
                 score: score.score,
                 win: score.win || false,
-                points: pointsAndStar.points,
+                points: Math.round(pointsAndStar.points),
                 star: pointsAndStar.star
             }
         } else{

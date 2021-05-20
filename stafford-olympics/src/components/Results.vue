@@ -47,7 +47,7 @@
       <v-tab-item>
         <result-list :results="getResultsForClass(18)" />
       </v-tab-item>
-      <v-tab-item> Teamresults. Not implemented yet </v-tab-item>
+      <v-tab-item> <team-list :results="allTeamResults" /> </v-tab-item>
     </v-tabs-items>
   </v-container>
 </template>
@@ -55,13 +55,13 @@
 <script>
 import { mapGetters } from "vuex";
 import ResultList from "@/components/ResultList.vue";
+import TeamList from "@/components/TeamList.vue";
+import { events } from "@/constants.js";
 export default {
   data: () => ({
     inchClass: null,
   }),
-  created() {
-
-  },
+  created() {},
   methods: {
     getDog(dogId) {
       return this.dogs.find((dog) => dog.id === dogId);
@@ -71,8 +71,42 @@ export default {
         (result) => result.dog.class === inchClass
       );
     },
+    getResultForTeam(teamDogs) {
+      let total = 0;
+      // Per onderdeel de results van een team ophalen
+      for (let event of events) {
+        let resultsForTeamOnEvent = [];
+        for (let dog of teamDogs) {
+          // console.log(`dogid: ${dog} event: ${event.id}`);
+          // Voor elke hond uit het team de score op het onderdeel ophalen.
+          let score = this.getScore(event.id, dog);
+          if (score) resultsForTeamOnEvent.push(score);
+        }
+        // Deze resultaten moeten nu gesorteerd worden op points
+        resultsForTeamOnEvent.sort((a, b) => b.points - a.points);
+        const totalForEvent = resultsForTeamOnEvent
+          // En daarvan hebben we de top 4 (of minder) nodig
+          .slice(0, 4)
+          // En daarvan weer het totaal :)
+          .reduce(
+            (accumulator, currentValue) => accumulator + currentValue.points,
+            0
+          );
+        total += totalForEvent;
+      }
+      return total;
+    },
+    getScore(eventId, dogId) {
+      if (!this.resultsForTournament.length) return;
+      const resultSet = this.resultsForTournament.find(
+        (test) => test.dogId === dogId
+      );
+      let result = resultSet.results[eventId];
+      result.eventId = eventId;
+      return { ...result };
+    },
   },
-  components: { ResultList },
+  components: { ResultList, TeamList },
   computed: {
     ...mapGetters([
       "currentTournament",
@@ -80,6 +114,13 @@ export default {
       "resultsForTournament",
       "teamsForTournament",
     ]),
+    allTeamResults() {
+      return this.teamsForTournament.map((team) => ({
+        id: team.id,
+        name: team.name,
+        total: this.getResultForTeam(team.dogs),
+      }));
+    },
     // dogsInTournament() {
     //   return this.teamsForTournament
     //     ? this.teamsForTournament.map((team) => team.dogs).flat()

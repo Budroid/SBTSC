@@ -157,7 +157,7 @@ export default {
       return { ...result };
     },
     isDone(event) {
-      return !event.scores.some((score) => !score.score);
+      return !event.scores.some((score) => !('star' in score));
     },
     submitScores(event) {
       this.submitting = true;
@@ -197,7 +197,7 @@ export default {
             height: score.height,
           })),
         };
-        console.log(submission);
+        // console.log(submission);
         const submit = functions.httpsCallable("submitScoresForEvent");
         submit(submission)
           .then(() => {
