@@ -2,6 +2,7 @@ const globalFunctions = require("firebase-functions")
 const functions = globalFunctions.region('europe-west2');
 const admin = require("firebase-admin");
 const formulas = require("./formulas");
+const constants = require("./constants");
 admin.initializeApp();
 const db = admin.firestore();
 
@@ -98,19 +99,6 @@ exports.startTournament = functions.https.onCall(async (data, context) => {
         throw new globalFunctions.https.HttpsError('permission-denied', 'Only admins are allowed to start a tournament.')
     }
 
-    const events = [
-        { id: 1, name: "50 meter", units: "sec" },
-        { id: 2, name: "100 meter", units: "sec" },
-        { id: 3, name: "Powersprint", units: "sec" },
-        { id: 4, name: "Long jump", units: "cm" },
-        { id: 5, name: "High jump", units: "cm" },
-        { id: 6, name: "Tug of war", units: "min" },
-        { id: 7, name: "Hangtime", units: "min" },
-        { id: 8, name: "A-Frame", units: "times" },
-        { id: 9, name: "Trackmill", units: "times" },
-        { id: 10, name: "10 Mile", units: "min" },
-    ]
-
     // Voor elk event een "scoreformulier" per hond maken
     const batch = db.batch()
     const tournamentRef = db.collection('tournaments').doc(data.tournamentId)
@@ -118,7 +106,7 @@ exports.startTournament = functions.https.onCall(async (data, context) => {
 
     data.dogs.forEach(dogId => {
         let results = {}
-        events.forEach(event => {
+        constants.events.forEach(event => {
             results[`${event.id}`] = {
                 points: 0
             }
@@ -145,8 +133,6 @@ exports.startTournament = functions.https.onCall(async (data, context) => {
         console.log(error)
         throw new globalFunctions.https.HttpsError('unknown', 'Creating scoresheet failed')
     });
-
-
 
 })
 
@@ -185,6 +171,7 @@ exports.submitScoresForEvent = functions.https.onCall(async (data, context) => {
 
     const batch = db.batch()
     const tournamentRef = db.collection('tournaments').doc(data.tournamentId)
+    const dogsRef = db.collection('dogs')
     const resultsRef = tournamentRef.collection('results');
 
     data.scores.forEach(score => {
@@ -198,6 +185,16 @@ exports.submitScoresForEvent = functions.https.onCall(async (data, context) => {
                 win: score.win || false,
                 points: Math.round(pointsAndStar.points),
                 star: pointsAndStar.star
+            }
+            if(score.pr){
+              // PR van de hond bijwerken
+              let pr = {
+                  event: constants.events.find(event => event.id == score.eventId),
+                  score: score.score,
+                  star: pointsAndStar.star,
+                  when: score.when
+              }            
+              dogsRef.doc(score.dogId).update({[`prs.${score.eventId}`] : pr});
             }
         } else{
             // Lege waarde submitten is score verwijderen

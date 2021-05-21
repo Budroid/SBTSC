@@ -21,11 +21,11 @@
           <v-list-item-content>
             <v-list-item-title>{{ result.dog.name }}</v-list-item-title>
           </v-list-item-content>
-          <v-list-item-action-text>{{ result.total }}</v-list-item-action-text>
+          <v-list-item-action-text>{{ result.total }} pts</v-list-item-action-text>
         </v-list-item>
       </template>
     </v-list>
-    <v-dialog v-model="detailDialog">
+    <v-dialog v-model="detailDialog" max-width="600">
       <individual-results v-if="detailDialog" :dogId="selectedDogId" />
     </v-dialog>
   </v-container>

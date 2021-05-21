@@ -10,7 +10,7 @@
           <v-list-item-content>
             <v-list-item-title>{{ result.name }}</v-list-item-title>
           </v-list-item-content>
-          <v-list-item-action-text>{{ result.total }}</v-list-item-action-text>
+          <v-list-item-action-text>{{ result.total }} pts</v-list-item-action-text>
         </v-list-item>
       </template>
     </v-list>

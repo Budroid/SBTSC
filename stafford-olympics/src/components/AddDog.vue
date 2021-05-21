@@ -102,10 +102,11 @@
 </template>
 
 <script>
-import { dogsCollection} from "@/firebase";
+import { dogsCollection } from "@/firebase";
 // import { dogsCollection, storage} from "@/firebase";
 import { nameRules, heightRules, chipnumberRules } from "@/validationrules";
 import { capitalize } from "@/stringutil";
+import { events } from "@/constants";
 import ImageInput from "@/components/ImageInput.vue";
 import { mapGetters, mapState } from "vuex";
 
@@ -167,6 +168,17 @@ export default {
       this.dog.retired = false;
       // Hond is bij default beschikbaar voor een team, deze waarde wordt alleen op false gezet wanneer een hond in een tourament actief is er wordt na het tournament weer gereset.
       this.dog.availableForTeam = true;
+      // Persoonlijke records van de hond initialiseren
+      let prs = {};
+      events.forEach((event) => {
+        prs[`${event.id}`] = {
+          event: event,
+          score: "",
+          star: "",
+        };
+      });
+     
+      this.dog.prs = prs
       // Hond oplslaan in de firestore
       dogsCollection.add(this.dog).then(() => {
         this.created = true;

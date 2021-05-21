@@ -1,7 +1,7 @@
 <template>
   <v-container ma-0 pa-0>
     <v-card
-     min-height="100vh"
+      min-height="100vh"
       color="background lighten-1"
       class="pt-4 pb-4"
       v-if="!proccessing && user.permissionLevel > 1"
@@ -147,6 +147,25 @@ export default {
     getDog(dogId) {
       return this.dogs.find((dog) => dog.id === dogId);
     },
+    isPr(dogId, eventId, score) {
+      const currentPr = this.getDog(dogId).prs[eventId]
+      if (currentPr.score) {
+        const descEvents = [1, 2, 3, 10];
+        const ascEvents = [4, 5, 6, 7, 8, 9];
+        if (descEvents.includes(eventId) && (score < currentPr.score)) {
+          // Lager is beter
+          return true;
+        }
+        if (ascEvents.includes(eventId) && (score > currentPr.score)) {
+          // Hoger is beter
+          return true;
+        }
+        // Geen PR helaas
+        return false
+      }
+      // Nog geen PR bekend, dus score is PR
+      return true
+    },
     getScore(eventId, dogId) {
       const resultSet = this.resultsForTournament.find(
         (test) => test.dogId === dogId
@@ -157,7 +176,7 @@ export default {
       return { ...result };
     },
     isDone(event) {
-      return !event.scores.some((score) => !('star' in score));
+      return !event.scores.some((score) => !("star" in score));
     },
     submitScores(event) {
       this.submitting = true;
@@ -195,9 +214,11 @@ export default {
             win: score.win || false,
             class: score.class,
             height: score.height,
+            pr: this.isPr(score.dogId, score.eventId, score.score),
+            when: this.currentTournament.name
           })),
         };
-        // console.log(submission);
+    //  console.log(submission)
         const submit = functions.httpsCallable("submitScoresForEvent");
         submit(submission)
           .then(() => {

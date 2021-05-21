@@ -60,7 +60,7 @@
         </v-btn>
 
         <v-btn
-          v-if="currentTournament.state.code === 'ofs'"
+          v-if="user.permissionLevel === 3 && currentTournament.state.code === 'ofs'"
           small
           color="primary"
           class="mb-2 mr-1"
@@ -69,7 +69,7 @@
           Start
         </v-btn>
         <v-btn
-          v-else-if="currentTournament.state.code === 'act'"
+          v-else-if="user.permissionLevel === 3 &&currentTournament.state.code === 'act'"
           small
           color="primary"
           class="mb-2 mr-1"
@@ -101,7 +101,7 @@
           v-if="
             !proccessing &&
             currentTournament.state.code === 'ofs' &&
-            user.permissionLevel == 3
+            user.permissionLevel === 3
           "
         >
           <v-card-text>
@@ -124,7 +124,7 @@
           v-if="
             !proccessing &&
             currentTournament.state.code === 'act' &&
-            user.permissionLevel == 3
+            user.permissionLevel === 3
           "
         >
           <v-card-text>
