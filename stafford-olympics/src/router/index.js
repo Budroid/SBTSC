@@ -113,8 +113,8 @@ router.beforeEach((to, from, next) => {
         })
       } else {
         // Local development:
-        // next()
-        next({ path: "/installation" })
+        next()
+        // next({ path: "/installation" })
       }
     } else if (to.matched.some(record => record.meta.guest)) {
       // Routes naar pages waarvoor GEEN authenticatie vereist is, maar wel installatie
