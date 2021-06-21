@@ -50,7 +50,8 @@
                   class="pl-1 pr-2 pb-1"
                 >
                   <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
-                    <v-img src="@/assets/default.jpg"></v-img>
+                    <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">
                     <small>{{ dog.name }}</small>
@@ -72,7 +73,8 @@
                   class="pl-1 pr-2 pb-1"
                 >
                   <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
-                    <v-img src="@/assets/default.jpg"></v-img>
+                    <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">
                     <small>{{ dog.name }}</small>
@@ -116,7 +118,7 @@
 import { mapGetters } from "vuex";
 import { teamNameRules } from "@/validationrules";
 import { tournamentsCollection } from "@/firebase";
-import { capitalize } from "@/stringutil";
+import { capitalize, getImageUrl } from "@/stringutil";
 // import { functions, dogsCollection } from "@/firebase";
 export default {
   name: "ChangeTeam",
@@ -147,6 +149,9 @@ export default {
   },
   components: {},
   methods: {
+    getImage(url) {
+      return getImageUrl(url, true);
+    },
     select(dogId, index) {
       // Max 6 honden in een team
       if (this.selectedDogs.length == 6) {
@@ -167,7 +172,10 @@ export default {
     },
     updateTeam() {
       this.creating = true;
-      let tournamentRef = tournamentsCollection.doc(this.$route.params.id).collection("teams").doc(this.team.id);
+      let tournamentRef = tournamentsCollection
+        .doc(this.$route.params.id)
+        .collection("teams")
+        .doc(this.team.id);
       tournamentRef
         .update({
           name: capitalize(this.team.name),

@@ -12,7 +12,7 @@
           </v-row>
         </v-container>
       </v-card-text>
-      <v-card-text v-else-if="created" class="pb-0 mb-0" >
+      <v-card-text v-else-if="created" class="pb-0 mb-0">
         <v-container fill-height>
           <v-row class="text-center" justify="center" align="center">
             <v-col cols="12" xs="12" sm="12" md="6">
@@ -102,8 +102,8 @@
 </template>
 
 <script>
-import { dogsCollection } from "@/firebase";
-// import { dogsCollection, storage} from "@/firebase";
+// import { dogsCollection } from "@/firebase";
+import { dogsCollection, storage } from "@/firebase";
 import { nameRules, heightRules, chipnumberRules } from "@/validationrules";
 import { capitalize } from "@/stringutil";
 import { events } from "@/constants";
@@ -127,6 +127,10 @@ export default {
   },
   components: { ImageInput: ImageInput },
   methods: {
+    sleep(ms) {
+      // Javascript heeft geen sleep functie, dus die moeten we zelf even maken
+      return new Promise((res) => setTimeout(res, ms));
+    },
     getClass(height) {
       let inInches = height * 0.393700787;
       if (inInches < 15) return 14;
@@ -147,19 +151,20 @@ export default {
 
       this.creating = true;
       if (this.selectedImage) {
-        // // Als er een image is geselecteerd dan deze eerst uploaden, zodat we een download URL hebben om toe toe voegen aan het dog object
-        // const fileExtention = this.selectedImage.imageFile.name
-        //   .split(".")
-        //   .pop();
-        // const filename = this.dog.chipnumber + "." + fileExtention;
+        // Als er een image is geselecteerd dan deze eerst uploaden, zodat we een download URL hebben om toe toe voegen aan het dog object
+        const fileExtention = this.selectedImage.imageFile.name
+          .split(".")
+          .pop();
+        const filename = this.dog.chipnumber + "." + fileExtention;
         // this.dog.chipnumber + "-" + Date.now() + "." + fileExtention;
-        // const response = await storage
-        //   .ref("images/" + filename)
-        //   .put(this.selectedImage.imageFile);
-        // // Set image url on dog object
-        // this.dog.image = await response.ref.getDownloadURL();
+        const response = await storage
+          .ref("images/" + filename)
+          .put(this.selectedImage.imageFile);
+        // Set image url on dog object
+        this.dog.image = await response.ref.getDownloadURL();
+        await this.sleep(2000)
       }
-      // Naam van de hond capitalizen voor de mensen die niet goed hebben opgelet op school. Fucking lelijk, namen met een kleine letter. :P
+      // Naam van de hond capitalizen
       this.dog.name = capitalize(this.dog.name);
       this.dog.creator = this.user.data.uid;
       // Inch klasse toevoegen aan de hond
@@ -177,8 +182,8 @@ export default {
           star: "",
         };
       });
-     
-      this.dog.prs = prs
+
+      this.dog.prs = prs;
       // Hond oplslaan in de firestore
       dogsCollection.add(this.dog).then(() => {
         this.created = true;

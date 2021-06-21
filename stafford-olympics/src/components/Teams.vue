@@ -34,7 +34,8 @@
                       margin-right: auto !important;
                     "
                   >
-                    <v-img src="@/assets/default.jpg"></v-img>
+                    <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
 
                   <p
@@ -60,7 +61,8 @@
       <template v-else
         ><v-container
           ><small
-            >You have no teams subscribed for {{ currentTournament.name }}.</small
+            >You have no teams subscribed for
+            {{ currentTournament.name }}.</small
           ></v-container
         ></template
       >
@@ -77,12 +79,12 @@
           style="border-bottom: 1pt solid red"
         >
           <v-list-item-content class="pb-0 pt-0">
-            <v-list-item-title style=" margin-top: 8px"
+            <v-list-item-title style="margin-top: 8px"
               ><em>{{ team.name }}</em></v-list-item-title
             >
 
             <v-container pa-0 ma-0 pt-2>
-              <v-row no-gutters >
+              <v-row no-gutters>
                 <v-col
                   cols="2"
                   justify="center"
@@ -99,7 +101,8 @@
                       margin-right: auto !important;
                     "
                   >
-                    <v-img src="@/assets/default.jpg"></v-img>
+                    <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
 
                   <p
@@ -120,7 +123,8 @@
       <template v-else
         ><v-container
           ><small
-            >There are no challenging teams for {{ currentTournament.name }} yet.</small
+            >There are no challenging teams for
+            {{ currentTournament.name }} yet.</small
           ></v-container
         ></template
       >
@@ -138,6 +142,8 @@
 <script>
 import ChangeTeam from "@/components/ChangeTeam.vue";
 import { mapGetters } from "vuex";
+import { getImageUrl } from "@/stringutil";
+
 export default {
   data: () => ({
     changeTeamDialog: false,
@@ -145,6 +151,9 @@ export default {
   }),
   created() {},
   methods: {
+    getImage(url) {
+      return getImageUrl(url, true);
+    },
     dogsForTeam(ids) {
       return this.dogs.filter(({ id }) => ids.includes(id));
     },

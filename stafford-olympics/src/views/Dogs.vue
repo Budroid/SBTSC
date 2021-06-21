@@ -40,29 +40,35 @@
                 v-ripple="{ center: true }"
               >
                 <v-list-item-avatar>
-                  <v-avatar>
+                  <!-- <v-avatar>
+                    <v-img src="@/assets/default.jpg"></v-img>
+                  </v-avatar> -->
+                  <v-avatar v-if="dog.image">
+                    <v-img :src="getImage(dog.image)"></v-img>
+                  </v-avatar>
+                  <v-avatar v-else>
                     <v-img src="@/assets/default.jpg"></v-img>
                   </v-avatar>
-                  <!-- <v-avatar v-if="dog.image">
-                  <v-img :src="dog.image"></v-img>
-                </v-avatar>
-                <v-avatar v-else>
-                  <v-img src="@/assets/default.jpg"></v-img>
-                </v-avatar> -->
                 </v-list-item-avatar>
                 <v-list-item-content @click="showPrs(dog)">
                   <v-list-item-title v-html="dog.name"></v-list-item-title>
-                  <v-list-item-subtitle >
-                   <div style="background-color: #393939; border-radius: 25px; height: 18px; padding-left: 5px;">
-                    <v-icon
-                      size="16"
-                     
-                      v-for="star, index in getPrStars(dog.prs)"
-                      :key="index"
-                      :color="star"
-                      >mdi-star</v-icon
+                  <v-list-item-subtitle>
+                    <div
+                      style="
+                        background-color: #393939;
+                        border-radius: 25px;
+                        height: 18px;
+                        padding-left: 5px;
+                      "
                     >
-                   </div>
+                      <v-icon
+                        size="16"
+                        v-for="(star, index) in getPrStars(dog.prs)"
+                        :key="index"
+                        :color="star"
+                        >mdi-star</v-icon
+                      >
+                    </div>
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-icon v-if="dog.creator == user.data.uid">
@@ -93,9 +99,9 @@
         v-if="user && user.permissionLevel >= 2"
         max-width="600"
       >
-        <template v-slot:activator="{ on }" >
+        <template v-slot:activator="{ on }">
           <v-btn
-          v-if="user && user.permissionLevel > 1"
+            v-if="user && user.permissionLevel > 1"
             style="z-index: 100; bottom: 72px"
             fab
             dark
@@ -135,6 +141,7 @@ import AddDog from "../components/AddDog.vue";
 import UpdateDog from "../components/UpdateDog.vue";
 import DogPrs from "@/components/DogPrs.vue";
 import { mapGetters } from "vuex";
+import { getImageUrl } from "@/stringutil";
 
 export default {
   components: { AddDog, UpdateDog, DogPrs },
@@ -148,6 +155,9 @@ export default {
     searchtext: "",
   }),
   methods: {
+    getImage(url) {
+      return getImageUrl(url, true);
+    },
     toggleSearch() {
       if (this.search) {
         this.searchtext = "";
@@ -159,7 +169,9 @@ export default {
       this.search = !this.search;
     },
     getPrStars(prs) {
-      return Object.values(prs).map(pr => pr.star).filter(star => star !== "");
+      return Object.values(prs)
+        .map((pr) => pr.star)
+        .filter((star) => star !== "");
     },
     updateDog(dog) {
       this.selectedDog = dog;

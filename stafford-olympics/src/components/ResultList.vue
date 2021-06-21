@@ -3,25 +3,22 @@
     <v-list>
       <template v-for="(result, index) in orderedResults">
         <v-list-item
-        v-ripple="{ center: true }"
+          v-ripple="{ center: true }"
           :key="`${index}-${result.dog.id}`"
           @click.native="showDetals(result.dog.id)"
         >
           <v-list-item-avatar>
             <v-avatar>
-              <v-img src="@/assets/default.jpg"></v-img>
+              <v-img v-if="result.dog.image" :src="getImage(result.dog.image)"></v-img>
+              <v-img v-else src="@/assets/default.jpg"></v-img>
             </v-avatar>
-            <!-- <v-avatar v-if="dog.image">
-                  <v-img :src="dog.image"></v-img>
-                </v-avatar>
-                <v-avatar v-else>
-                  <v-img src="@/assets/default.jpg"></v-img>
-                </v-avatar> -->
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title>{{ result.dog.name }}</v-list-item-title>
           </v-list-item-content>
-          <v-list-item-action-text>{{ result.total }} pts</v-list-item-action-text>
+          <v-list-item-action-text
+            >{{ result.total }} pts</v-list-item-action-text
+          >
         </v-list-item>
       </template>
     </v-list>
@@ -33,6 +30,7 @@
 
 <script>
 import IndividualResults from "@/components/IndividualResults";
+import { getImageUrl } from "@/stringutil";
 export default {
   data: () => ({
     detailDialog: false,
@@ -45,6 +43,9 @@ export default {
     IndividualResults,
   },
   methods: {
+    getImage(url) {
+      return getImageUrl(url, true);
+    },
     showDetals(dogId) {
       this.selectedDogId = dogId;
       this.detailDialog = true;

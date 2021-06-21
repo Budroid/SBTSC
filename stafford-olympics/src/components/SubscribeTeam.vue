@@ -50,7 +50,9 @@
                   class="pl-1 pr-2 pb-1"
                 >
                   <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
-                    <v-img src="@/assets/default.jpg"></v-img>
+                    <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">
                     <small>{{ dog.name }}</small>
@@ -72,7 +74,9 @@
                   class="pl-1 pr-2 pb-1"
                 >
                   <v-list-item-avatar size="30" class="mr-1 mt-0 mb-0">
-                    <v-img src="@/assets/default.jpg"></v-img>
+                   <v-img v-if="dog.image" :src="getImage(dog.image)"></v-img>
+
+                    <v-img v-else src="@/assets/default.jpg"></v-img>
                   </v-list-item-avatar>
                   <v-list-item-content class="ma-0 pa-0">
                     <small>{{ dog.name }}</small>
@@ -116,7 +120,7 @@
 import { mapGetters } from "vuex";
 import { teamNameRules } from "@/validationrules";
 import { tournamentsCollection } from "@/firebase";
-import { capitalize } from "@/stringutil";
+import { capitalize, getImageUrl } from "@/stringutil";
 
 export default {
   name: "SubscribeTeam",
@@ -131,12 +135,19 @@ export default {
     err: "",
   }),
   created() {
-    const dogsInTournament = this.teamsForTournament ? this.teamsForTournament.map((team) => team.dogs).flat() : [];
-     // Alle honden die niet in een team voor dit tournament zitten
-    this.availableDogs = this.dogs.filter((dog) => !dogsInTournament.includes(dog.id) && !dog.retired);
+    const dogsInTournament = this.teamsForTournament
+      ? this.teamsForTournament.map((team) => team.dogs).flat()
+      : [];
+    // Alle honden die niet in een team voor dit tournament zitten
+    this.availableDogs = this.dogs.filter(
+      (dog) => !dogsInTournament.includes(dog.id) && !dog.retired
+    );
   },
   components: {},
   methods: {
+    getImage(url) {
+      return getImageUrl(url, true);
+    },
     select(dogId, index) {
       // Max 6 honden in een team
       if (this.selectedDogs.length == 6) {
@@ -164,10 +175,14 @@ export default {
       };
 
       let tournamentRef = tournamentsCollection.doc(this.currentTournament.id);
-      tournamentRef.collection('teams').add(team).then(()=>{
+      tournamentRef
+        .collection("teams")
+        .add(team)
+        .then(() => {
           this.created = true;
-          this.creating = false;   
-      }).catch((err) => {
+          this.creating = false;
+        })
+        .catch((err) => {
           this.err = err.message;
           this.creating = false;
           this.created = false;

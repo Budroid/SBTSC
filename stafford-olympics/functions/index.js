@@ -210,3 +210,12 @@ exports.submitScoresForEvent = functions.https.onCall(async (data, context) => {
         throw new globalFunctions.https.HttpsError('unknown', 'Submitting score failed')
     });
 })
+
+// exports.updateDownloadURL = functions
+// .storage
+// .object()
+// .onFinalize((object) => {
+//     console.log("OBJECT FINALIZED!!!!!")
+//     console.log(object.metadata)
+//     // const downloadtoken = object.metadata?.firebaseStorageDownloadTokens;
+// });

@@ -12,7 +12,7 @@
           </v-row>
         </v-container>
       </v-card-text>
-      <v-card-text v-else-if="created" class="pb-0 mb-0" >
+      <v-card-text v-else-if="created" class="pb-0 mb-0">
         <v-container fill-height>
           <v-row class="text-center" justify="center" align="center">
             <v-col cols="12" xs="12" sm="12" md="6">
@@ -49,7 +49,7 @@
                   <v-img :src="selectedImage.imageURL" />
                 </v-avatar>
                 <v-avatar size="120px" v-ripple v-else class="ma-1">
-                  <v-img :src="dog.image" />
+                  <v-img :src="getImage(dog.image)" />
                 </v-avatar>
               </div>
             </image-input>
@@ -119,7 +119,7 @@
 // import { storage, dogsCollection } from "@/firebase";
 import { dogsCollection } from "@/firebase";
 import { nameRules, heightRules, chipnumberRules } from "@/validationrules";
-import { capitalize } from "@/stringutil";
+import { capitalize, getImageUrl } from "@/stringutil";
 import ImageInput from "@/components/ImageInput.vue";
 import { mapGetters, mapState } from "vuex";
 
@@ -144,6 +144,9 @@ export default {
   },
   components: { ImageInput: ImageInput },
   methods: {
+    getImage(url) {
+      return getImageUrl(url, false);
+    },
     getClass(height) {
       let inInches = height * 0.393700787;
       if (inInches < 15) {
@@ -185,7 +188,7 @@ export default {
       this.dog.name = capitalize(this.dog.name);
       this.dog.creator = this.user.data.uid;
       // Hond updaten
-      
+
       //TODO Eerst image resize fixen en functions aanpassen
 
       dogsCollection
