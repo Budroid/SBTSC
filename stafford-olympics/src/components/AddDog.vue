@@ -12,12 +12,12 @@
           </v-row>
         </v-container>
       </v-card-text>
-      <v-card-text v-else-if="created">
+      <v-card-text v-else-if="created" class="pb-0 mb-0" >
         <v-container fill-height>
           <v-row class="text-center" justify="center" align="center">
             <v-col cols="12" xs="12" sm="12" md="6">
               <h2>{{ dog.name }}</h2>
-              <p>has been succesfully added</p>
+              <p class="mb-0">has been succesfully added</p>
             </v-col>
           </v-row>
         </v-container>

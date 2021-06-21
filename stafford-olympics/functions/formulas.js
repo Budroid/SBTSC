@@ -65,7 +65,8 @@ function getScoreHigh(hoogte, afstand) {
 
 function getScoreTow(tijd, win) {
     let result = {}
-    tijd = win ? 20 : Math.floor(tijd)
+    tijd = tijd > 20 ? 20 : Math.floor(tijd)
+    tijd = win ? 20 : tijd
     let star = 10 - Math.ceil((20 - tijd) / 3)
     star = star > 10 ? 10 : star;
     star = star < 4 ? 0 : star;
@@ -76,7 +77,7 @@ function getScoreTow(tijd, win) {
 
 function getScoreHangtime(tijd) {
     let result = {}
-    tijd = Math.floor(tijd)
+    tijd = tijd > 20 ? 20 : Math.floor(tijd)
     let star = 10 - Math.ceil((20 - tijd) / 3)
     star = star > 10 ? 10 : star;
     star = star < 4 ? 0 : star;

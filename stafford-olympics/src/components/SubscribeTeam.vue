@@ -27,7 +27,7 @@
             v-model.trim="teamName"
             :rules="teamNameRules"
             prepend-icon="mdi-account-multiple"
-            label="What is the name for the team?"
+            label="Team name"
             required
             hide-details="auto"
             maxlength="30"

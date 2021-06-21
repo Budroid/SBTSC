@@ -12,7 +12,7 @@
             {{ dog.name }}
           </h3>
           <p>
-            <small>{{ dog.class }} "  <em class="ml-3">{{dog.retired ? "RETIRED" : ""}}</em></small> 
+            <small>{{ dog.class }}" class  <em class="ml-3">{{dog.retired ? "RETIRED" : ""}}</em></small> 
           </p>
         </v-col>
       </v-row>

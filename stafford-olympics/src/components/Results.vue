@@ -3,10 +3,10 @@
     <v-container v-if="currentTournament.state.code === 'ofs'" pl-9 pr-9 pt-9>
       <small
         ><em>
-          Once the tournament has started, the dog's scores can be submitted and
-          the results will be visible here. It is not possible to subscribe or
-          change a team after the tournament has been started. So don't forget
-          to do this in time.
+          Once the tournament has started, it is no longer possible to subscribe or
+          change a team. Make sure all teams are final before the tournament
+          start date. When the tournament has started, scores can be submitted
+          on this page by teamcaptains and results will be displayed here.
           <br /><br />Happy competition!
         </em></small
       >

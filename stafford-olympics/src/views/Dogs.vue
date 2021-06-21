@@ -24,7 +24,7 @@
                       style="margin: 0px"
                       ref="search"
                       v-model="searchtext"
-                      placeholder="Start typing to find your dog..."
+                      placeholder="Search dog..."
                       type="text"
                       rounded
                       filled
@@ -93,8 +93,9 @@
         v-if="user && user.permissionLevel >= 2"
         max-width="600"
       >
-        <template v-slot:activator="{ on }">
+        <template v-slot:activator="{ on }" >
           <v-btn
+          v-if="user && user.permissionLevel > 1"
             style="z-index: 100; bottom: 72px"
             fab
             dark

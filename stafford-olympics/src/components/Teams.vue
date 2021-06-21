@@ -60,8 +60,7 @@
       <template v-else
         ><v-container
           ><small
-            >You haven't subscribed a team for
-            {{ currentTournament.name }} yet.</small
+            >You have no teams subscribed for {{ currentTournament.name }}.</small
           ></v-container
         ></template
       >
@@ -69,7 +68,7 @@
     <p></p>
     <v-list>
       <v-container pa-0 ma-0 style="text-align: center"
-        ><small class="grey--text lighten-1">Other teams</small></v-container
+        ><small class="grey--text lighten-1">Challengers</small></v-container
       >
       <template v-if="otherTeams.length">
         <v-list-item
@@ -121,7 +120,7 @@
       <template v-else
         ><v-container
           ><small
-            >No other team for {{ currentTournament.name }} yet.</small
+            >There are no challenging teams for {{ currentTournament.name }} yet.</small
           ></v-container
         ></template
       >

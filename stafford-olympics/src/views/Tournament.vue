@@ -38,9 +38,10 @@
 
       <v-layout column class="fab-container">
         <v-btn
-          v-if="currentTournament.state.code === 'ofs'"
+          v-if="currentTournament.state.code === 'ofs' && user.permissionLevel > 1"
           @click="addTeamDialog = true"
           small
+          rounded
           color="primary"
           class="mb-2 mr-1"
         >
@@ -53,6 +54,7 @@
           "
           @click="submitScoreDialog = true"
           small
+          rounded
           color="primary"
           class="mb-2 mr-1"
         >
@@ -62,6 +64,7 @@
         <v-btn
           v-if="user.permissionLevel === 3 && currentTournament.state.code === 'ofs'"
           small
+          rounded
           color="primary"
           class="mb-2 mr-1"
           @click="modifyStateDialog = true"
@@ -71,6 +74,7 @@
         <v-btn
           v-else-if="user.permissionLevel === 3 &&currentTournament.state.code === 'act'"
           small
+          rounded
           color="primary"
           class="mb-2 mr-1"
           @click="modifyStateDialog = true"
@@ -106,13 +110,12 @@
         >
           <v-card-text>
             <center><h3 style="margin-bottom: 5px">Are you sure?</h3></center>
-            Have you cheched if all the teams are subscribed? After starting the
-            tournament, this is no longer possible.
+          When you start the tournament, it is no longer possible to subscribe or change a team. Make sure all teams are final before you confirm
           </v-card-text>
           <v-card-actions
             ><v-btn @click="close()" small>Cancel</v-btn
             ><v-btn color="primary" small @click="start()"
-              >Sure, lets go!</v-btn
+              >Confirm</v-btn
             ></v-card-actions
           >
         </v-card>
@@ -132,14 +135,13 @@
               <h3 style="margin-bottom: 5px">
                 Are you sure you want to finish this tournament?
               </h3>
-              No more scores can be entered and the final results will be
-              displayed
+              All scores become final and cannot be changed or added.
             </center>
           </v-card-text>
           <v-card-actions
             ><v-btn @click="close()" small>Cancel</v-btn
             ><v-btn color="primary" small @click="finish()"
-              >Yep, it's done</v-btn
+              >Finish</v-btn
             ></v-card-actions
           >
         </v-card>

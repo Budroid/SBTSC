@@ -21,7 +21,7 @@
                 
                   <v-row class="text-center" justify="center">
                     <v-col cols="12" xs="12" sm="12" md="6">
-                      Select a type of tournament
+                      Select type of tournament
                     </v-col>
                   </v-row>
                   <v-row class="text-center" justify="center">
@@ -55,7 +55,7 @@
                 <div>
                   <v-row class="text-center" align="center" justify="center">
                     <v-col cols="12" xs="12" sm="12" md="6">
-                      Select a country
+                      Select country
                     </v-col>
                   </v-row>
                   <v-row class="text-center" align="center" justify="center">
@@ -89,7 +89,7 @@
                 <div>
                   <v-row class="text-center" justify="center" align="center">
                     <v-col cols="12" xs="12" sm="12" md="6">
-                      Select a startdate
+                      Select startdate
                     </v-col>
                   </v-row>
                   <v-row class="text-center" justify="center" align="center">
