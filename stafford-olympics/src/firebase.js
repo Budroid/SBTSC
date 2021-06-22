@@ -42,6 +42,9 @@ const tournamentsCollection = db.collection('tournaments')
 const dogsCollection = db.collection('dogs')
 const teamsCollection = db.collection('teams')
 
+// Set persistent mode for firestore
+// db.enablePersistence()
+
 // Types
 // const FieldValue = firebase.firestore.FieldValue
 

@@ -116,7 +116,7 @@
 </template>
 
 <script>
-// import { storage, dogsCollection } from "@/firebase";
+import { storage } from "@/firebase";
 import { dogsCollection } from "@/firebase";
 import { nameRules, heightRules, chipnumberRules } from "@/validationrules";
 import { capitalize, getImageUrl } from "@/stringutil";
@@ -144,6 +144,10 @@ export default {
   },
   components: { ImageInput: ImageInput },
   methods: {
+    sleep(ms) {
+      // Javascript heeft geen sleep functie, dus die moeten we zelf even maken
+      return new Promise((res) => setTimeout(res, ms));
+    },
     getImage(url) {
       return getImageUrl(url, false);
     },
@@ -170,18 +174,19 @@ export default {
       this.err = "";
       this.creating = true;
       if (this.selectedImage) {
-        // // Als er een image is geselecteerd dan deze eerst uploaden, zodat we een download URL hebben om toe toe voegen aan het dog object
-        // const fileExtention = this.selectedImage.imageFile.name
-        //   .split(".")
-        //   .pop();
-        // const filename = this.dog.chipnumber + "." + fileExtention;
+        // Als er een image is geselecteerd dan deze eerst uploaden, zodat we een download URL hebben om toe toe voegen aan het dog object
+        const fileExtention = this.selectedImage.imageFile.name
+          .split(".")
+          .pop();
+        const filename = this.dog.chipnumber + "." + fileExtention;
         // this.dog.chipnumber + "-" + Date.now() + "." + fileExtention;
-        // const response = await storage
-        //   .ref("images/" + filename)
-        //   .put(this.selectedImage.imageFile);
-        // // Set image url on dog object
-        // this.dog.image = await response.ref.getDownloadURL();
-      }
+        const response = await storage
+          .ref("images/" + filename)
+          .put(this.selectedImage.imageFile);
+        // Set image url on dog object
+        this.dog.image = await response.ref.getDownloadURL();
+        await this.sleep(2000);
+      } 
       // Klasse toevoegen aan de hond
       this.dog.class = this.getClass(this.dog.height);
       // Naam van de hond capitalizen voor de mensen die niet goed hebben opgelet op school

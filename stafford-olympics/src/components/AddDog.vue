@@ -137,6 +137,32 @@ export default {
       if (inInches >= 18) return 18;
       return Math.floor(inInches);
     },
+    delay(t, v) {
+      return new Promise(function (resolve) {
+        setTimeout(resolve.bind(null, v), t);
+      });
+    },
+    keepTrying(triesRemaining, storageRef) {
+      if (triesRemaining < 0) {
+        return Promise.reject("out of tries");
+      }
+      return storageRef
+        .getDownloadURL()
+        .then((url) => {
+          return url;
+        })
+        .catch((error) => {
+          switch (error.code) {
+            case "storage/object-not-found":
+              return this.delay(2000).then(() => {
+                return this.keepTrying(triesRemaining - 1, storageRef);
+              });
+            default:
+              console.log(error);
+              return Promise.reject(error);
+          }
+        });
+    },
     async createDog() {
       if (
         this.dogs.some(
@@ -161,8 +187,14 @@ export default {
           .ref("images/" + filename)
           .put(this.selectedImage.imageFile);
         // Set image url on dog object
-        this.dog.image = await response.ref.getDownloadURL();
-        await this.sleep(2000)
+        const downloadURL = await response.ref.getDownloadURL();
+        // Wachten tot de image resize ook klaar is
+        const storageRef = storage
+          .ref()
+          .child("/images/" + this.dog.chipnumber + "_200x200.jpeg");
+        await this.keepTrying(10, storageRef)
+        this.dog.image = downloadURL;
+        //   await this.sleep(2000)
       }
       // Naam van de hond capitalizen
       this.dog.name = capitalize(this.dog.name);
